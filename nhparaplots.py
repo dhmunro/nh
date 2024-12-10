@@ -3,7 +3,8 @@ from datetime import datetime
 from numpy import (array, arange, asfarray, pi, cos, sin, sqrt, arctan2,
                    where, matmul, cross, interp)
 from matplotlib import rc
-from matplotlib.pyplot import clf, axes, axis, plot, text, arrow, savefig
+from matplotlib.pyplot import (clf, axes, axis, plot, text, arrow, savefig,
+                               gcf)
 
 rc('lines', linewidth=2)
 
@@ -275,6 +276,10 @@ tickf = ticki % 1.0
 ticki = (ticki // 1.0).astype(int)
 nh_ticks = (1. - tickf)*nh_ticks[..., ticki] + tickf*nh_ticks[..., ticki+1]
 
+gcf().set_figwidth(9.77)
+gcf().set_figheight(7.45)
+gcf().set_dpi(100.)
+
 # nhfig1 caption:
 #
 # Orbits of the outer planets and New Horizons (NH) viewed from the
@@ -286,55 +291,50 @@ nh_ticks = (1. - tickf)*nh_ticks[..., ticki] + tickf*nh_ticks[..., ticki+1]
 # date.  Proxima Cen is about 45 degrees south of the ecliptic, so the
 # P ray is pointing into the page at that angle.  Wolf 359 is nearly in
 # the ecliptic plane, and the spacecraft is within 2 degrees.
-def fig1(save=True, name="nhfig1.png", dpi=300, alt=True):
+def fig1(prog=3, save=False, name="nhfig1.png", dpi=300):
     clf()
     axes(aspect="equal").set_axis_off()
+    # axis((-50.768, 69.110, -36.685, None))  does weird stuff here
     plot(*vernal_up(jup_xyz), c="0.7", lw=1)
     plot(*vernal_up(sat_xyz), c="0.7", lw=1)
     plot(*vernal_up(ura_xyz), c="0.7", lw=1)
     plot(*vernal_up(nep_xyz), c="0.7", lw=1)
     plot(*vernal_up(plu_xyz), c="0.7", lw=1)
-    if alt:
-        arrow(0, 0, 0, 51, color="0.45", head_width=3, head_length=4.5,
-              zorder=2)
-        for y in [0, 10, 20, 30, 40, 50]:
-            plot([-1.8, 0], [y, y], c="0.45", lw=1)
-            text(-2.5, y, str(y), va="center", ha="right", c="0.45", size=10)
-        text(1, 48, "x (au)", va="center", ha="left", c="0.45", size=12)
-    else:
-        plot([0, 0], [0, 47], ":", c="0.7")
-        plot([30, 40], [40, 40], c="k", lw=4)
-        text(42, 40, "10 au", size="large", va="center", ha="left", c="k")
-    plot(*nh_ticks, c="k", lw=0.75)
-    plot(*nh_xy, c="k", solid_capstyle="round")
-    # arrow(*arrow_prox, width=0.4, color="#d73027",
-    #       head_width=3, head_length=4.5, zorder=2)
-    # arrow(*arrow_wolf, width=0.4, color="#4575b4",
-    #       head_width=3, head_length=4.5, zorder=2)
-    plot(*seg_prox, c="#d73027")
-    plot(*seg_wolf, c="#4575b4")
+    arrow(0, 0, 0, 51, color="0.45", head_width=3, head_length=4.5,
+          zorder=2)
+    for y in [0, 10, 20, 30, 40, 50]:
+        plot([-1.8, 0], [y, y], c="0.45", lw=1)
+        text(-2.5, y, str(y), va="center", ha="right", c="0.45", size=10)
+    text(1, 48, "x (au)", va="center", ha="left", c="0.45", size=12)
+    if prog > 2:
+        plot(*nh_ticks, c="k", lw=0.75)
+        plot(*nh_xy, c="k", solid_capstyle="round")
+        px, py = vernal_up(nh_xyz[:, -1])
+        text(px+1, py, "NH", size="large", va="center", ha="left", c="k")
     plot(0, 0, "o", ms=5, c="orange")
-    # px, py = vernal_up(prox_q + 5*prox_d)
-    # plot([px], [py], "o", ms=5, c="#d73027")
-    #   text(*vernal_up(prox_q + 1.5*prox_d)   ...
-    # px, py = vernal_up(wolf_q - 37*wolf_d)
-    # plot([px], [py], "o", ms=5, c="#4575b4")
-    #   text(*vernal_up(wolf_q - 40.5*wolf_d)   ...
-    # P: 52, 5.5  W: 44, 0
-    text(35, 22.2, "P", size="large", va="center", ha="center", c="#d73027")
-    text(46.2, 27, "W", size="large", va="center", ha="center", c="#4575b4")
-    ang = arctan2(*(prox_d[:2]*[1,-1])) * 180./pi
-    text(46, 2.5, "Proxima Cen", size=10, c="#d73027", rotation=ang)
-    c, s = cos(ang * pi/180.), sin(ang * pi/180.)
-    arrow(59.8, 2.7, 2.7*c, 2.7*s, width=0.1, head_width=1.2, color="#d73027")
-    ang = arctan2(*(wolf_d[:2]*[-1,1])) * 180./pi
-    text(33.1, -27.3, "Wolf 359", size=10, c="#4575b4", rotation=ang)
-    c, s = -cos(ang * pi/180.), -sin(ang * pi/180.)
-    arrow(33.5, -28, 2.7*c, 2.7*s, width=0.1, head_width=1.2, color="#4575b4")
-    px, py = vernal_up(nh_xyz[:, -1])
-    text(px+1, py, "NH", size="large", va="center", ha="left", c="k")
-    text(12, 52, "New Horizons 2020-04-23", size=14, c="k")
+    if prog > 0:
+        plot(*seg_prox, c="#d73027")
+        text(35, 22.2, "P", size="large", va="center", ha="center", c="#d73027")
+        ang = arctan2(*(prox_d[:2]*[1,-1])) * 180./pi
+        text(46, 2.5, "Proxima Cen", size=10, c="#d73027", rotation=ang)
+        c, s = cos(ang * pi/180.), sin(ang * pi/180.)
+        arrow(59.8, 2.7, 2.7*c, 2.7*s, width=0.1, head_width=1.2,
+              color="#d73027")
+    if prog > 1:
+        plot(*seg_wolf, c="#4575b4")
+        text(46.2, 27, "W", size="large", va="center", ha="center", c="#4575b4")
+        ang = arctan2(*(wolf_d[:2]*[-1,1])) * 180./pi
+        text(33.1, -27.3, "Wolf 359", size=10, c="#4575b4", rotation=ang)
+        c, s = -cos(ang * pi/180.), -sin(ang * pi/180.)
+        arrow(33.5, -28, 2.7*c, 2.7*s, width=0.1, head_width=1.2,
+              color="#4575b4")
+    if prog > 1:
+        text(12, 52, "New Horizons 2020-04-23", size=14, c="k")
+    axis((-50.768, 69.110, -36.685, None))
     if save:
+        if prog < 3:
+            name = name.split(".")
+            name = ".".join([name[0] + "-{}".format(prog), name[1]])
         savefig(name, dpi=dpi, facecolor="w")
 
 
@@ -357,24 +357,6 @@ def fig0(save=True, name="nhfig1.png", dpi=300, alt=True):
         plot([0, 0], [0, 47], ":", c="0.7")
         plot([30, 40], [40, 40], c="k", lw=4)
         text(42, 40, "10 au", size="large", va="center", ha="left", c="k")
-    plot([0], [0], "o", ms=5, c="k")
-    plot(*vernal_up(nh_xyz), c="k", solid_capstyle="round")
-    arrow(*arrow_prox, width=0.4, color="#d73027",
-          head_width=3, head_length=4.5, zorder=2)
-    arrow(*arrow_wolf, width=0.4, color="#4575b4",
-          head_width=3, head_length=4.5, zorder=2)
-    # px, py = vernal_up(prox_q + 5*prox_d)
-    # plot([px], [py], "o", ms=5, c="#d73027")
-    #   text(*vernal_up(prox_q + 1.5*prox_d)   ...
-    # px, py = vernal_up(wolf_q - 37*wolf_d)
-    # plot([px], [py], "o", ms=5, c="#4575b4")
-    #   text(*vernal_up(wolf_q - 40.5*wolf_d)   ...
-    text(52, 5.5, "P", size="large", va="center", ha="center", c="#d73027")
-    text(44, 0, "W", size="large", va="center", ha="center", c="#4575b4")
-    px, py = vernal_up(nh_xyz[:, -1])
-    text(px+1, py, "NH", size="large", va="center", ha="left", c="k")
-    if save:
-        savefig(name, dpi=dpi, facecolor="w")
 
 
 def circle_pts(x, y, r, npts=256):

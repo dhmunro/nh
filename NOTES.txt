@@ -1,3 +1,48 @@
 Overleaf - overleaf.com online LaTeX editor and collaboration tool
   Sign in via ORCID
   www.overleaf.com/project  - has link to Interstelalr Navigation (lauer)
+
+-------------------------------
+
+(198 words)
+
+The location of New Horizons on 2020 April 23 as derived from the
+directions to Proxima Cen and Wolf 359 measured from the spacecraft.
+This is the view from the ecliptic north pole; the vertical axis is at
+zero right ascension and the origin is the solar system barycenter.
+The line P passes through the precise GAIA 3-D location of Proxima
+Cen, in the direction measured from the spacecraft.  In other words,
+the LORRI image of Proxima Cen constrains the spacecraft to lie on
+line P.  Similarly, the LORRI image of Wolf 359 constrains the
+spacecraft to lie on line W.  Combined, the two images determine the
+spacecraft position on April 23 as the intersection of P and W.  The
+trajectory NH is the actual path of the spacecraft from launch in 2006
+through 2023, with ticks on January 1 each year.  Proxima Cen is
+$\sim45^\circ$ south of the ecliptic, so line P tilts into the
+page at that angle; Wolf 359 and the NH trajectory are within
+$2^\circ$ of the ecliptic.  Lines P and W are slightly skew owing to
+measurement errors, the errors in the LORRI-based direction
+measurements being far greater than the GAIA position errors.
+
+Original Fig 3 caption: (225 words)
+
+The location of New Horizons on 2020 April 23, as derived from the
+locations of Proxima Cen and Wolf 359 measured from the spacecraft, is
+shown relative to the orbits of the outer planets viewed from the
+ecliptic north pole.  The vertical axis corresponds to zero right
+ascension.  The red and blue rays emanate from Proxima Cen and Wolf
+359, respectively.  The direction to a given star as determined from
+New Horizons, combined with the precise GAIA 3-D location of the star
+referenced to the solar system barycenter, defines a ray giving the
+allowed location of the the spacecraft.  The intersection of the two
+rays is the only location where the positions of Proxima Cen and Wolf
+359 observed from New Horizons are both consistent with GAIA
+astrometry. Proxima Cen is $\sim45^\circ$ degrees south of the
+ecliptic, so its ray is pointing up into the page at that angle.  Wolf
+359 is nearly in the ecliptic plane. The inclination of the spacecraft
+trajectory is slightly under $2^\circ.$ The trajectory shown is the
+actual New Horizon trajectory from launch in 2006 to late 2024. Tick
+marks denote years; the innermost mark corresponds to 2007.0. The
+difference between the true NH location on 2020 April 23 and the
+present result is evident as a very small displacement of the
+intersection of the rays from the true trajectory.
