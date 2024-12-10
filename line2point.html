@@ -1,0 +1,487 @@
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>Line to Point Formulas</title>
+  <meta name="description"
+    content="Euler computed Pi to twenty digits in an hour.  Can you?">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>MathJax = {tex: { inlineMath: [["$", "$"], ["\\(", "\\)"]],
+                  macros: {
+                    bv: ['\\mathbf{#1}', 1],
+                    bh: ['\\hat{\\mathbf{#1}}', 1],
+                    bm: ['\\underline{\\mathbf{#1}}', 1],
+                    BL: '\\boldsymbol{\\Lambda}'
+                  }
+                }};
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
+          id="MathJax-script">
+  </script>
+  <style>
+    div {
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+    .textcolumn {
+      padding-left: 1em;
+      padding-right: 1em;
+      min-width: 22em;
+      max-width: 52em;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+<div class="textcolumn">
+  <h1 style="text-align: center;">Line to Point Formulas</h1>
+
+<!--
+Gaia DR3 5853498713190525696    designation (source_id) Proxima Cen
+2016    ref_epoch
+217.39232147200883      ra (deg)
+0.023999203     ra_error (mas)
+-62.67607511676666      dec (deg)
+0.03443618      dec_error (mas)
+0.37388447      ra_dec_corr correlation coefficient -1<rho(alpha,delta)<1
+768.0665391873573       parallax (mas)
+0.049872905     parallax_error (mas)
+-3781.741008265163      pmra (mas/yr)
+0.031386077     pmra_error (mas/yr)
+769.4650146478623       pmdec (mas/yr)
+0.050524533     pmdec_error (mas/yr)
+-21.942726      radial_velocity (km/s)
+0.21612652      radial_velocity_error (km/s)
+
+correlation coefficient = covariance/(product of standard deviations)
+
+Gaia DR3 3864972938605115520            designation (source_id) Wolf 359
+2016    ref_epoch
+164.10319030755974      ra (deg)
+0.06683743      ra_error (mas)
+7.002726940984864       dec (deg)
+0.051524777     dec_error (mas)
+0.08985967      ra_dec_corr correlation coefficient -1<rho(alpha,delta)<1
+415.17941567802137      parallax (mas)
+0.06837086      parallax_error (mas)
+-3866.3382751436793     pmra (mas/yr)
+0.08130645      pmra_error (mas/yr)
+-2699.214987679166      pmdec (mas/yr)
+0.06910815      pmdec_error (mas/yr)
+
+Correct ra and dec to J2000.0 epoch:
+
+ra += dt*pmra/cos(dec)
+dec += dt*pmdec
+
+-->
+
+  <h2>Appendix A</h2>
+
+  <p>A central problem of surveying is to determine your position
+    vector $\bv{x}$ by measuring the directions $\bh{d}_i$ (unit
+    vectors) to $N$ landmarks with known positions $\bv{p}_i$ (vectors).
+    Consider the projection $\bv{u}_i$ of the vector from your
+    position to landmark $i$ into the plane normal to the measured
+    direction
+    \[ \bv{u}_i = \bv{Q}_i(\bv{p}_i - \bv{x}), \]
+    where
+    \[ \bv{Q}_i = \bv{I} - \bh{d}_i\bh{d}_i^T \]
+    is the projection operator matrix.  If the directions and
+    positions had no errors, then by definition the every
+    $\bv{p}_i-\bv{x}$ is parallel to $\bh{d}_i$ and all the
+    $\bv{u}_i=0.$</p>
+
+  <p>Since the projection operators $\bv{Q}_i$ map 3D space into a 2D
+    plane, if there are $N$ landmarks, there are $2N$ linearly
+    independent equations $\bv{u}_i=0$ to solve for the three
+    components of $\bv{x}.$ (That is, the system is overdetermined
+    when $N\ge 2,$ with $2N-3$ degrees of freedom.)  One way to solve
+    for $\bv{x}$ is simply to sum the $N$ vector equations:
+    \[ \sum_i\bv{u}_i = \sum_i\bv{Q}_i(\bv{p}_i - \bv{x}) = 0, \]
+    or
+    \[ \bigl(\sum_i\bv{Q}_i\bigr)\bv{x} = \sum_i\bv{Q}_i\bv{p}_i. \]
+    As long as two of the $\bh{d}_i$ are not parallel,
+    $\sum_i\bv{Q}_i$ will not be a singular matrix, even though every
+    individual $\bv{Q}_i$ is singular.  In fact, you can weight the
+    terms in $\sum\bv{u}_i$ any way you choose and still get a correct
+    equation for $\bv{x},$ as long as all the $\bv{u}_i$ really are
+    zero.</p>
+
+  <p>In practice, you know neither the $\bh{d}_i$ nor the $\bv{p}_i$
+    with perfect accuracy, so the $\bv{u}_i$ will not be precisely
+    zero.  Errors $\delta\bh{d}_i$ and $\delta\bv{p}_i$ cause $\bv{u}_i$
+    to have a small non-zero value
+    \[ \delta\bv{u}_i = \bv{Q}_i(\delta\bv{p}_i - r_i\delta\bh{d}_i), \]
+    where $r_i=|\bv{p}_i-\bv{x}|$ is your distance to the $i$-th
+    landmark.  (Geometrically, $r_i\delta\bh{d}_i$ is the apparent
+    displacement of the landmark caused by the error in direction.
+    Algebraically, you can show that the second term equals
+    $\delta\bv{Q}_i(\bv{p}_i-\bv{x})$ to first order.)</p>
+
+  <p>Write $\bv{V}(\bv{z})$ for the covariance matrix of a vector
+    $\bv{z},$ that is, the expectation value of the outer product
+    of the errors,
+    \[ \bv{V}(\bv{z}) = &lt;\delta\bv{z}\delta\bv{z}^T&gt;. \]
+    From the formula for $\delta\bv{u}_i,$ you can work out the
+    covariance of the apparent non-zero projections $\bv{u}_i$ in
+    terms of the covariances of the position and direction errors.
+    Assuming these are independent.
+    \[ \bv{V}(\bv{u}_i) = \bv{Q}_i
+          (\bv{V}(\bv{p}_i)+r_i^2\bv{V}(\bh{d}_i))\bv{Q}_i. \]
+    Presumably you have at least a rough idea of the position and
+    direction measurement errors $\bv{V}(\bv{p}_i)$ and
+    $\bv{V}(\bh{d}_i).$</p>
+
+  <p>This covariance formula gives you a way to estimate the
+    likelihood of observing a non-zero value of $\bv{u}_i.$  Assuming
+    normally distributed errors, the log of the probability that
+    $\bv{u}_i=\delta\bv{u}_i$ is proportional to minus
+    \[ \chi_i^2 = \bv{u}_i^T\BL(\bv{u}_i)\bv{u}_i. \]
+    Here $\BL(\bv{z})$ is the inverse of the covariance matrix
+    $\bv{V}(\bv{z}),$ or the pseudo-inverse with the same range space
+    if $\bv{V}$ is singular.  Assuming the $N$ direction measurements
+    have independent errors, minus the log of the probability of
+    observing each specific non-zero value of $\bv{u}_i$ is
+    proportional to the sum
+    \[ \chi^2 = \sum_i\bv{u}_i^T\BL(\bv{u}_i)\bv{u}_i. \]
+    Therefore, the $\bv{x}$ which minimizes $\chi^2$ is the most
+    likely value to have produced the observed $\bh{d}_i.$</p>
+
+  <p>At the minimum, $\delta\chi^2$ must be zero for every small change
+    $\delta\bv{x},$
+    \[ \delta\chi^2 = \sum_i\bigl(-2\delta\bv{x}^T\bv{Q}_i\BL(\bv{u}_i)\bv{u}_i
+                    + \bv{u}_i\delta\BL(\bv{u}_i)\bv{u}_i\bigr). \]
+    Because $\BL(\bv{u}_i)$ is defined to be the pseudo-inverse
+    $\BL(\bv{u}_i)\bv{V}(\bv{u}_i)=\bv{Q}_i,$
+    \[ \delta\BL(\bv{u}_i)=-\BL(\bv{u}_i)\delta\bv{V}(\bv{u}_i)\BL(\bv{u}_i). \]
+    Now
+    \[ \delta\bv{V}(\bv{u}_i) =
+       -2\bv{Q}_i(\delta\bv{x}^T(\bv{p}_i-\bv{x})\bv{V}(\bh{d}_i))\bv{Q}_i, \]
+    so that
+    \[ \delta\BL(\bv{u}_i) =
+    -2\BL(\bv{u}_i)(\delta\bv{x}^T(\bv{p}_i-\bv{x})\bv{V}(\bh{d}_i))
+    \BL(\bv{u}_i). \]
+  </p>
+
+  <p>At minimum $\chi^2,$ the gradient $\nabla_\bv{x}$ is zero:
+    \[ \sum_i\bigl(-2\bv{Q}_i\BL(\bv{u}_i)\bv{u}_i
+        + \bv{u}_i^T\nabla_\bv{x}\BL(\bv{u}_i)\bv{u}_i\bigr) = 0 \]
+    Since $\BL\bv{V}=I$ (or $\bv{Q}$ if $\bv{V}$ is singular),
+    \[ \nabla_\bv{x}\BL\bv{V} + \BL\nabla_\bv{x}\bv{V} = 0, \]
+    so that
+    \[ \nabla_\bv{x}\BL = -\BL\nabla_\bv{x}\bv{V}\BL. \]
+    The only $\bv{x}$ dependence in $\bv{V}(\bv{u}_i)$ comes from
+    the $r_i^2$ in the variance caused by direction errors.  Since
+    $\nabla_\bv{x}r_i^2=-2(\bv{p}_i-\bv{x}),$
+    \[ \bv{u}_i^T\nabla_\bv{x}\BL(\bv{u}_i)\bv{u}_i =
+          2\bigl(\bv{u}_i^T\BL(\bv{u}_i)\bv{V}(\bh{d}_i)
+            \BL(\bv{u}_i)\bv{u}_i\bigr)(\bv{p}_i-\bv{x}). \]
+    Finally, the value of $\bv{x}$ which minimizes $\chi^2$ satisfies
+    \[ \bigl(\sum_i\bv{W}_i\bigr)\bv{x} = \sum_i\bv{W}_i\bv{p}_i, \]
+    where the weight matrices are
+    \[ \bv{W}_i = \bv{Q}_i\BL(\bv{u}_i)\bv{Q}_i
+          - \bigl(\bv{u}_i^T\BL(\bv{u}_i)\bv{V}(\bh{d}_i)
+                  \BL(\bv{u}_i)\bv{u}_i\bigr)\bv{I}. \]
+  </p>
+
+  <p>If the errors in direction $\bv{V}(\bh{d}_i)$ are non-zero, then
+    $\bv{W}_i$ depends on $\bv{x},$ and this 3x3 system of equations
+    must be solved iteratively.  A reasonable first guess is
+    to take all $\bv{W}_i=\bv{Q}_i.$  However, if the direction
+    errors dominate the position errors, and also the landmarks are
+    all very distant, $|\bv{p}_i|\gg|\bv{x}|$, then a better first
+    guess is $\bv{W}_i=\bv{Q}_i/|\bv{p}_i|^2.$  For any reasonably
+    accurate survey, the second term in the expression for $\bv{W}_i$
+    will be very small, since it is quadratic in the residuals
+    $\bv{u}_i.$  Therefore, it makes sense to only compute it as a
+    final correction once iterations using only the first term have
+    converged.</p>
+
+  <p>Once you have solved for $\bv{x},$ how accurate is your solution?
+    You minimized $\chi^2$ on the assumption that the probability of
+    $\bv{x}$ was proportional to $\exp(-\chi^2/2),$ and you can read
+    off the inverse covariance matrix near its peak as
+    \[ \sum_i\bv{Q}_i\BL(\bv{u}_i)\bv{Q}_i \approx \sum_i\bv{W}_i. \]
+    Since you already need the inverse of this sum to solve for
+    $\bv{x},$ you may as well estimate that
+    \[ \bv{V}(\bv{x}) = \bigl(\sum_i\bv{W}_i\bigr)^{-1}, \]
+    is the covariance matrix for your position after solving
+    \[ \bv{x} = \bv{V}(\bv{x})\sum_i\bv{W}_i\bv{p}_i. \]
+    Also notice that if your analysis is consistent, then when you
+    compute the $\chi^2$ corresponding to this value of $\bv{x},$
+    you should expect the result to be of order $2N-3,$ the number
+    of degrees of freedom in the system.
+  </p>
+
+  <h2>Appendix B</h2>
+
+  <p>If your direction measurements are sufficiently precise compared
+    to the errors in the landmark positions, then your measurement of
+    your position may, as a side effect, improve how accurately you
+    know some of the components of your landmark positions.  By
+    extending the $\chi^2$ analysis to allow for variations in the
+    landmark positions, you can explore this effect.  How accurate
+    must your direction measurements be?  How much will they reduce
+    the errors in your knowledge of the landmark positions?</p>
+
+  <p>To carry out this program, introduce vectors $\bv{q}_i,$ which
+    are your best estimates of the landmark positions, as opposed to
+    the true values $\bv{p}_i.$  Then
+    \[ \chi^2 = \sum_i\bigl(\bv{u}_i^T\BL(\bv{u}_i)\bv{u}_i +
+      (\bv{p}_i-\bv{q}_i)^T\bv{V}(\bv{p}_i)^{-1}(\bv{p}_i-\bv{q}_i)\bigr). \]
+    Now you need to find the minimum $\chi^2$ when both $\bv{x}$ and
+    all the $\bv{p}_i$ vary.  Since the new terms do not depend on
+    $\bv{x},$ the equation you get by setting $\nabla_\bv{x}\chi^2=0$
+    remains unchanged.  However, you have to solve $N$ new equations
+    to find the $\bv{p}_i$:
+    \[ \bv{Q}_i\BL(\bv{u}_i)\bv{Q}_i(\bv{p}_i-\bv{x})
+       + \bv{V}(\bv{p}_i)^{-1}(\bv{p}_i-\bv{q}_i) = 0, \]
+    or
+    \[ \bigl(\bv{V}(\bv{p}_i)^{-1}+\bv{Q}_i\BL(\bv{u}_i)\bv{Q}_i\bigr)
+       (\bv{p}_i-\bv{q}_i) =
+       - \bv{Q}_i\BL(\bv{u}_i)\bv{Q}_i(\bv{q}_i-\bv{x}). \]
+    That is, when you combine your direction measurement with your
+    existing knowledge of the landmark positions, your measurements
+    are best explained by shifting the landmark positions slightly
+    from your original best estimates $\bv{q}_i.$  Together with the
+    equation for $\bv{x},$ these form a system of $3N+3$ equations
+    in $3N+3$ unknowns.  However, since the equations for $\bv{x}$
+    must be solved iteratively, you may as well iterate these $N$
+    3x3 systems at the same time, starting with $\bv{p}_i=\bv{q}_i$
+    and adjusting each $\bv{p}_i$ separately by solving for the
+    corresponding $\bv{p}_i-\bv{q}_i$ after each pass.</p>
+
+  <p>From the $\chi^2$ equation, your new position errors have also
+    shifted to have inverse covariance
+    \[ \bv{V}(\bv{p}_i)^{-1} + \bv{Q}_i\BL(\bv{u}_i)\bv{Q}_i, \]
+    that is, the covariance is shifted to the inverse of the matrix
+    on the LHS of the equation for $\bv{p}_i$:
+    \[ \bv{V}(\bv{p}_i) \to
+       \bigl(\bv{V}(\bv{p}_i)^{-1}+\bv{Q}_i\BL(\bv{u}_i)\bv{Q}_i\bigr)^{-1}. \]
+  </p>
+
+  <p>Before embarking on this program, you should check whether adding
+    $\bv{Q}_i\BL(\bv{u}_i)\bv{Q}_i$ to $\bv{V}(\bv{P}_i)^{-1}$ makes
+    any significant difference.  There is no need to adjust any $\bv{p}_i$
+    for which the new errors will not differ substantially from the old.
+    Recall that
+    \[ \BL(\bv{u}_i)=\bigl(\bv{V}(\bv{p}_i)+r_i^2\bv{V}(\bh{d}_i)\bigr)^{-1}, \]
+    so it will make sense to adjust the $\bv{q}_i$ if and only if
+    the covariances $r_i^2\bv{V}(\bh{d}_i)$ caused by direction errors
+    begin to become as small as the covariances $\bv{V}(\bv{p}_i)$ due
+    to landmark position errors.</p>
+
+  <h2>Gaia DR3 star coordinates</h2>
+
+  <p>Gaia DR3 star coordinates use reference era 2016, which I presume
+    means J2000.0 plus 365.25\times;16 = 5844 days, or JD 2457389.0.
+    Coordinates are given as right ascension, declination, and
+    parallax, with standard deviations for all three, as well as all
+    correlation coefficients.  Additional data includes proper motion
+    in right ascension and declination, together with standard
+    deviations and correlation coefficients with the coordinates.
+    Both proper motion and covariances in right ascension are
+    presented as angles on the sky in the east-west direction, not as
+    raw changes in the right ascension coordinate.  Notice that the
+    parallax and proper motion will always be substantially
+    correlated, since both are derived from small direction changes
+    with time.</p>
+
+
+<hr/>
+<hr/>
+
+<h2>(Second try)</h2>
+
+  <p>How can you determine your own vector position $\bv{x}$ by
+    measuring the directions $\bh{d}_i$ (as unit vectors) to $N\ge2$
+    landmarks with known vector locations $\bv{p}_i$?  Each direction
+    restricts your position to some point on the line L$_i$ passing
+    through $\bv{p}_i$ with direction $\bh{d}_i$.  Your position
+    $\bv{x}$ is the common intersection point of all the L$_i$.</p>
+
+  <p>Consider the operator $\bv{Q}$ (a 3x3 matrix) which projects
+    vectors into a plane perpendicular to a direction $\bh{d}.$ Since
+    $\bh{d}^T\bv{p}=\bh{d}\cdot\bv{p}$ is the component of $\bv{p}$
+    along $\bh{d},$ the projection is $\bv{Q}\bv{p}=\bv{p} -
+    \bh{d}\bh{d}^T\bv{p},$ so that
+    \[\bv{Q}=\bv{I} - \bh{d}\bh{d}^T,\]
+    where $\bv{I}$ is the 3x3 identity matrix.  Note that $\bv{Q}$
+    is symmetric and idempotent (applying it a second time leaves
+    a projected vector unchanged), so
+    \[\bv{Q}^T=\bv{Q}^2=\bv{Q}.\]
+    Also notice that $\bv{Q}$ is a singular matrix, collapsing everything
+    into the plane normal to $\bh{d}.$</p>
+
+  <p>Returning to the original problem, $\bv{x}$ satisfies
+    \[\bv{Q}_i(\bv{x}-\bv{p}_i)=0\]
+    for every individual landmark, because $\bv{x}-\bv{p}_i$ is
+    parallel to $\bh{d}.$ This amounts to $2N$ independent equations
+    for the 3 components of $\bv{x}$ owing to the singularity of each
+    $\bv{Q}_i$.  This is an overdetermined system with $2N-3$ extra
+    degrees of freedom for $N\ge2$, so there are many ways to solve
+    for $\bv{x}.$ One interesting way is to sum linear combinations of
+    the $N$ vector equations to get a single 3x3 system:
+    \[\bigl(\sum_i\bv{W}_i\bv{Q}_i\bigr)\bv{x}=\sum_i\bv{W}_i\bv{Q}_i\bv{p}_i\]
+    Here the $\bv{W}_i$ are arbitrary 3x3 weighting matrices - they
+    can be anything that doesn't make the matrix on the left side
+    singular.  For now notice that you could choose all the $\bv{W}_i$
+    to be the identity matrix to solve for $\bv{x}$ if all your
+    measurements were perfect.</p>
+
+  <p>In practice, errors in your direction measurements, or in
+    the landmark positions, or both, mean that the L$_i$ will not
+    quite intersect.  (In 3D this will happen even if you use only two
+    landmarks, since the two lines will inevitably be skew.)  The best
+    you can do is to choose the point $\bv{x}$ most likely to be the
+    intersection of the true, mutually intersecting L$_i$, given the
+    errors in directions and positions.  We use a $\chi^2$ analysis
+    to find this most likely intersection point in terms of the
+    direction and landmark errors.</p>
+
+  <p>When there are errors in $\bv{p}_i$ and $\bh{d}_i$ (hence in
+    $\bv{Q}_i$), the $\bv{Q}_i(\bv{x}-\bv{p}_i)$ will be
+    slightly non-zero.  In general, a vector has an error ellipsoid
+    defined by a 3x3 symmetric covariance matrix $\bv{V},$ whose
+    eigenvectors are the principal axes of the ellipsoid and
+    eigenvalues are the corresponding variances.  The $\chi^2$
+    statistic is
+    \[\chi^2 = \sum_i(\bv{x}-\bv{p}_i)^T\bv{Q}_i^T
+                      \bv{V}_i^{-1}\bv{Q}_i(\bv{x}-\bv{p}_i).\]
+    As noted above, there are $2N-3$ degrees of freedom in this
+    system, so if you make good estimates of the $\bv{V}_i$, you
+    expect $\chi^2\approx2N-3.$</p>
+
+  <p>To minimize $\chi^2,$ any small variation $\delta\bv{x}$ leaves
+    \[\delta\chi^2 = 2\delta\bv{x}^T
+       \sum_i\bv{Q}_i^T\bv{V}_i^{-1}\bv{Q}_i(\bv{x}-\bv{p}_i) = 0,\]
+    which matches the solution for exact positions
+    and directions with weights chosen to be
+    \[\bv{W}_i = \bv{Q}_i^T\bv{V}_i^{-1}\bv{Q}_i.\]
+    In other words, the weights which minimize $\chi^2$ are simply
+    the projection of the inverse covariance matrix $\bv{V}_i^{-1}$
+    into the plane normal to $\bh{d}_i.$  Notice that with this
+    definition $\bv{W}_i\bv{Q}_i=\bv{W}_i,$ so the 3x3 system for
+    $\bv{x}$ becomes simply
+    \[\bigl(\sum_i\bv{W}_i\bigr)\bv{x}=\sum_i\bv{W}_i\bv{p}_i.\]
+  </p>
+
+  <p>This $\chi^2$ analysis is based on the idea that the likelihood
+    of the measured directions and landmark positions being consistent
+    with a true position $\bv{x}$ is proportional to $\exp(-\chi^2/2).$
+    But this is Gaussian in $\bv{x}.$  The 3x3 covariance matrix for this
+    Gaussian is
+    \[\bv{V}_{\!\bv{x}} = \bigl(\sum_i\bv{W}_i\bigr)^{-1},\]
+    so this is the natural estimate for the error ellipsoid associated
+    with the minimum $\chi^2$ solution for $\bv{x}$.</p>
+
+  <p>The final result of the $\chi^2$ analysis is thus that the best
+    estimate of your position is
+    \[ \bv{x} = \bv{V}_{\!\bv{x}}\sum_i\bv{W}_i\bv{p}_i, \]
+    with an error ellipsoid specified by the covariance matrix
+    \[\bv{V}_{\!\bv{x}} = \bigl(\sum_i\bv{W}_i\bigr)^{-1},\]
+    where the weights are
+    \[\bv{W}_i = \bv{Q}_i\bv{V}_i^{-1}\bv{Q}_i,\]
+    and the $\bv{V}_i^{-1}$ are the inverse covariance matrices for
+    the residuals $\bv{Q}_i(\bv{x}-\bv{p}_i)$ estimated from the
+    errors in the $\bv{p}_i$ and $\bh{d}_i.$</p>
+
+  <p>The only remaining task is to estimate the $\bv{V}_i^{-1}$ for
+    some specific cases.</p>
+
+  <p>If a direction $\bh{d}_i$ is imperfectly known, then $\bv{x}$
+    could lie anywhere in a thin cone with its apex at $\bv{p}_i$ and
+    its axis along L$_i.$ Assuming a normally distributed angular
+    error, this conical error distribution has a half-angle of
+    $\sigma_{\eta i},$ the standard deviation of the error in
+    direction $\bh{d}_i.$ On the other hand, if the landmark position
+    is imperfectly known, then $\bv{x}$ could lie anywhere in a thin
+    cylinder around L$_i.$ The radius of this cylindrical error
+    distribution is $\sigma_{p i},$ the standard deviation of the
+    landmark position $\bv{p}_i.$ Note that if the error in $\bv{p}_i$
+    is anisotropic, then this error cylinder has an elliptical cross
+    section.  If both direction and position are uncertain, the
+    combined error distribution will be a thin hyperboloid of one
+    sheet with L$_i$ for its axis.</p>
+
+  <h2>Original sketch</h2>
+
+  <p>Consider the line L through a point $\bv{p}$ (a vector) in a
+    direction $\bh{d}$ (a unit vector).  So we start with a line L
+    and a point $\bv{x}$ not necessarily on L.</p>
+
+  <p>Let $\bm{Q}$ (a matrix) be the operator that projects vectors
+    into the plane perpendicular to $\bh{d}.$  Since $\bh{d}\bh{d}^T$
+    (the T superscript is transpose) is the operator that projects
+    vectors onto the $\bh{d}$ direction,
+    \[\bm{Q} = \bm{1} - \bh{d}\bh{d}^T,\]
+    where $\bm{1}$ is the identity matrix.  Note that
+    $\bm{Q}^T=\bm{Q}^2=\bm{Q}.$</p>
+
+  <p>Hopefully it is clear that $\bv{u}=\bm{Q}(\bv{x}-\bv{p})$ is the
+    vector from the point on L nearest $\bv{x}$ to the point $\bv{x}$
+    itself.  The length $u$ of $\bv{u}$ is the impact parameter of L
+    relative to $\bv{x}$.</p>
+
+  <p>Consider dithering $\bm{x}$ by some tiny amount $\delta\bv{x}.$
+    Then $\delta\bv{u}=\bm{Q}\delta\bv{x},$ and $\delta u^2=
+    2\delta \bv{u}^T \bv{u},$
+    so that
+    \[\delta u^2 = 2\delta\bv{x}^T \bm{Q}(\bv{x}-\bv{p}).\]
+    (Because $\bm{Q}^T\bm{Q}=\bm{Q}.$)</p>
+
+  <p>Now suppose there are $N$ lines L$_i$, passing through points
+    $\bv{p}_i$ with directions $\bh{d}_i$.  These will have impact
+    parameters $u_i$ relative to some point $\bv{x},$ and we can find
+    the point $\bv{x}$ which minimizes $\sum_i u_i^2,$ which is in
+    some sense the point where the lines most nearly intersect (note
+    that the minimum of this sum is zero if the lines really do all
+    intersect at a point).  At the minimum,
+    \[\delta\sum_i u_i^2 = 2\delta\bv{x}^T \sum_i\bm{Q}_i(\bv{x}-\bv{p}_i) = 0,\]
+    for every possible displacement $\delta\bv{x},$ so
+    \[\bigl(\sum_i\bm{Q}_i\bigr)\bv{x} = \sum_i\bm{Q}_i\bv{p}_i.\]
+  </p>
+
+  <p>If you think about what you have done here, this formula is the
+    best estimate for the intersection point of a set of lines
+    assuming that each line is fuzzy - that is, each line is really a
+    cylindrical cloud: Assuming independent cylindrical Gaussian fuzz
+    clouds of equal variance around each line, minimizing $\sum_i
+    u_i^2$ maximizes the probability that the lines all pass through
+    $\bv{x}.$  This would be the case if the errors in the $\bh{d}_i$
+    were zero, while the errors in the $\bv{p}_i$ were isotropic and
+    equal to a common $\sigma_u.$</p>
+
+  <p>On the other hand, if the errors in the $\bv{p}_i$ are negligible
+    compared to the errors in the $\bh{d}_i,$ then you should think of
+    each line as a fuzzy cone, tapering to a single point at
+    $\bv{p}_i,$ and expanding with a tiny angle $\sigma_\alpha$ equal
+    to the error in the direction $\bh{d}_i.$ Let
+    $\sigma_i=p_i\sigma_\alpha,$ where $p_i$ is the length of
+    $\bv{p}_i$ on the assumption that this is far larger than any of
+    the $u_i.$  Then
+    \[\chi^2 = \sum_i u_i^2/\sigma_i^2
+            = \bigr(\sum_i u_i^2/p_i^2\bigl)/\sigma_\alpha^2\]
+    is minus the log of the probability that all the measurements $\bh{d}_i$
+    could have been made if the true comman intersection point were $\bv{x}.$
+    Minimizing this $\chi^2$ thus gives the least squares best estimate
+    of $\bv{x}$ assuming that the $\bv{p}_i$ are exactly known and very
+    distant, while the $\bh{d}_i$ have a common angular standard deviation
+    of $\sigma_\alpha.$  The formula for $\bv{x}$ is the same as before,
+    except that the terms in the sums are weighted by $1/p_i^2,$ the
+    squares of the distances to $\bv{p}_i$:
+    \[\bigl(\sum_i\bm{Q}_i/p_i^2\bigr)\bv{x} = \sum_i\bm{Q}_i\bv{p}_i/p_i^2.\]
+    This makes a certain amount of sense - if all of the uncertainty is
+    in the directions $\bh{d}_i,$ then very distant points $\bv{p}_i$
+    should contribute very little to your best guess at $\bv{x}.$</p>
+
+  <p>You can obviously write down many such minimum $\chi^2$ formulas to
+    account for anisotropic or individual variances in the $\bv{p}_i$ and
+    $\bh{d}_i.$  Also, the $\chi^2$ formalism gives you a standard way to
+    write down the resulting uncertainty in $\bv{x}$ if you wish.</p>
+
+</div>
+</body>
+</html>
