@@ -430,7 +430,7 @@ class DateTime(datetime):
 
     @classmethod
     def fromjd(cls, jd):
-        return cls.fromtimestamp((jd - 2440587.5) * 86400.0)
+        return cls.fromtimestamp((jd - 2440587.5) * 86400.0, timezone.utc)
 
 
 # ############ Load data for JPL and Schlyter solar system models #############
