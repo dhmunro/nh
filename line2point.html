@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -12,8 +11,10 @@
                     bv: ['\\mathbf{#1}', 1],
                     bh: ['\\hat{\\mathbf{#1}}', 1],
                     bm: ['\\underline{\\mathbf{#1}}', 1],
-                    BL: '\\boldsymbol{\\Lambda}'
-                  }
+                    BL: '\\boldsymbol{\\Lambda}',
+                    cross: '\\boldsymbol{\\times}'
+                  },
+                  tags: 'ams'
                 }};
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
@@ -37,6 +38,170 @@
 <div class="textcolumn">
   <h1 style="text-align: center;">Line to Point Formulas</h1>
 
+  <h2>Section 3.1.  The Navigation Methodology</h2>
+
+  <p>Consider first the general problem of determining the location of
+    a spacecraft which makes nearly simultaneous measurements of the
+    unit direction vectors $\bh{d}_k$ to $N$ stars.  If we also have
+    the SSB-based position vectors $\bv{p}_k$ of those stars derived
+    from the Gaia DR3 catalog, then each direction measurement
+    determines a line passing through $\bv{p}_k$ in direction
+    $\bh{d}_k.$  The spacecraft position vector $\bv{x}$ must be
+    the common intersection point of these $N$ lines.  Of course, in
+    practice, no two of these lines will exactly meet, owing to
+    measurement errors in the $\bh{d}_k$ or $\bv{p}_k.$</p>
+
+  <p>Define $\bv{Q}_k=\bv{I}-\bh{d}_k\bh{d}_k^T$ to be the $3\times 3$
+    projection matrix into the plane normal to $\bh{d}_k.$ Then
+    \begin{equation} \bv{u}_k = \bv{Q}_k(\bv{x} - \bv{p}_k)
+    \label{eq:udef}\end{equation}
+    is the perpendicular displacement of any point $\bv{x}$ from the
+    line determined by $\bh{d}_k$ and $\bv{p}_k.$ The length
+    $|\bv{u}_k|$ is the impact parameter of the line as it passes
+    $\bv{x}.$ Ideally, all $N$ of the $\bv{u}_k=0,$ which is an
+    overdetermined system of $3N$ equations for the $3$ unknown
+    components of $\bv{x}.$ However, since each $\bv{Q}_k$ is a
+    projection into a plane, only $2N$ of these equations are linearly
+    independent.  Thus there are a total of $2N-3$ more independent
+    equations than unknowns.  What errors do we expect in $\bv{u}_k$
+    if we know or can estimate the errors in $\bh{d}_k$ and
+    $\bv{p}_k$?</p>
+
+  <p>To quantify the error of a vector quatity $\bv{z},$ we define the
+    $3\times 3$ covariance matrix
+    \begin{equation} \bv{V}(\bv{z}) = &lt;\delta\bv{z}\delta\bv{z}^T&gt;
+    \label{eq:vdef}\end{equation}
+    where $&lt;...&gt;$ represents the expectation value over the
+    probability distribution of the error $\delta\bv{z}$ in $\bv{z}.$
+    By construction, this covariance matrix is symmetric, so we can
+    think of its eigenvectors as the principal axes of an error
+    ellipsoid, and its eigenvalues as the squares of the corresponding
+    axis lengths - that is, the variances of $\bv{z}$ along those
+    principal axes.  Define $\BL(\bv{z})$ as the symmetric matrix with
+    the same eigenvectors but reciprocal non-zero eigenvalues - that
+    is, the inverse of $\bv{V}(\bv{z})$ or its pseudo-inverse if any
+    eigenvalue is zero.</p>
+
+  <p>Our strategy for choosing the most likely spacecraft position
+    given imperfect direction measurements or catalog star positions
+    is to minimize [cite Numerical Recipes, third ed., section 15.4]
+    \begin{equation} \chi^2 = \sum_k \bv{u}_k^T\BL(\bv{u}_k)\bv{u}_k.
+    \label{eq:chi2}\end{equation}
+    We compute the covariance $\bv{V}(\bv{u}_k)$ from
+    Eq.($\ref{eq:vdef}$) and the differential of Eq.($\ref{eq:udef}$),
+    \[ -\delta\bv{u}_k = (\delta\bh{d}_k\bh{d}_k^T+\bh{d}_k\delta\bh{d}_k^T)
+                         (\bv{x}-\bv{p}_k) + \bv{Q}_k\delta\bv{p}_k. \]
+    To first order, $(\bv{x}-\bv{p}_k)=-|\bv{x}-\bv{p}_k|\bh{d}_k,$
+    since if the measurements were perfect, $\bh{d}_k$ would be exactly
+    the direction from the spacecraft to the star, $\bv{p}_k-\bv{x}.$
+    Also, since $\bh{d}_k$ is a unit vector,
+    $\delta\bh{d}_k^T\bh{d}_k=0.$ Putting all this together, and assuming
+    the errors $\delta\bv{p}_k$ are independent of the errors
+    $\delta\bh{d}_k,$ we find
+    \begin{equation} \bv{V}(\bv{u}_k) =
+    |\bv{x}-\bv{p}_k|^2\bv{V}(\bh{d}_k) + \bv{Q}_k\bv{V}(\bv{p}_k)\bv{Q}_k,
+    \label{eq:ucov}\end{equation}
+    which determines the $\BL(\bv{u}_k)$ for Eq.(\ref{eq:chi2}).</p>
+
+  <p>Since $|\bv{x}|\ll|\bv{p}_k|$ we will ignore the weak $\bv{x}$
+    dependence in Eq.($\ref{eq:ucov}$) by setting
+    $|\bv{x}-\bv{p}_k|^2\approx p_k^2$, and note that the minimum
+    $\chi^2,$ which is the most likely spacecraft position, is where
+    $\sum_k\bv{Q}_k\BL(\bv{u}_k)\bv{u}_k=0,$ or
+    \begin{equation} \bv{x} =
+       \bv{V}(\bv{x})\sum_k\bv{Q}_k\BL(\bv{u}_k)\bv{Q}_k\bv{p}_k,
+    \label{eq:x}\end{equation}
+    where
+    \begin{equation} \bv{V}(\bv{x}) =
+        \bigl(\sum_k\bv{Q}_k\BL(\bv{u}_k)\bv{Q}_k\bigr)^{-1}
+    \label{eq:xcov}\end{equation}
+    is the covariance matrix (that is, error ellipsoid) for the solution
+    vector $\bv{x}.$ [cite Numerical Recipes, third ed., section 15.4]</p>
+
+  <p>Eq.($\ref{eq:x}$) matches the formulas given in Kaplan [2011],
+    with the $\BL(\bv{u}_k)$ matrix providing the weights for the
+    terms in the sum.  In particular, taking $\BL(\bv{u}_k)=\bv{I}$
+    for all $k$ gives the solution which minimizes the sum of the
+    squares of the distances from $\bv{x}$ to each of the lines (note
+    that $\bv{Q}_k^2=\bv{Q}_k$).  This unweighted solution is a very
+    robust estimate of the position $\bv{x},$ which is certainly
+    adequate for our minimal $N=2$ case. However, Eq.($\ref{eq:xcov}$)
+    can no longer be interpreted as the errors in $\bv{x}$.  Here
+    we will work through a rudimentary estimate of the covariances
+    for the $\bh{d}_k$ and $\bv{p}_k$ to get a better idea of the
+    performance this navigation technique and how to plan this type
+    of observation program.</p>
+
+  <p>Estimating the error in extracting the direction of a star from a
+    particular LORRI image is not easy, and the error will certainly
+    vary from image to image depending on the exact circumstances of
+    spacecraft residual slew rates, exposure times, the background
+    star field, and many other factors.  Many of these factors will
+    not be known until after the image has been made, so for the
+    purposes of planning a set of observations, a reasonable
+    assumption is that the error in $\bh{d}_k$ is simply some angle
+    $\sigma_d$ on the sky.  The corresponding covariance matrix (with
+    $\sigma_d$ in radians) is
+    \begin{equation} \bv{V}(\bh{d}_k) =
+    \sigma_d^2\bv{Q}_k.  \label{eq:dcov}\end{equation}
+    For a single LORRI image, experience has shown us that $\sigma_d$
+    is of order 200&nbsp;mas (1&nbsp;&micro;rad).  A single pixel is
+    4080&nbsp;mas, so this amounts to a twentieth of a pixel.  Note
+    that this is not a question of the resolution of the instrument,
+    but of how well one statistic - the centroid - can be determined
+    for something known to be a point source.  This is very much a
+    ballpark estimate, within perhaps a factor of two or three.</p>
+
+  <p>The Gaia DR3 catalog provides extensive information about the
+    detailed covariance $\bv{V}_k(\bv{p}_k)$ associated with each star
+    position - unlike the situation for $\bh{d}_k,$ we know this
+    $3\times 3$ matrix exactly.  These errors are orders of magnitude
+    less than the LORRI errors in our case, but we will work through a
+    very rough generic estimate of the $\bv{V}_k(\bv{p}_k)$ to show
+    how they might eventually come into play.  In the plane of the
+    sky, let $\sigma_p$ be a typical Gaia angular error (in radians
+    like $\sigma_d.$ The Gaia parallax error $\sigma_\pi$, on the
+    other hand, causes a much larger range error $p_k\sigma_\pi/\pi,$
+    where $\pi\propto 1/p_k$ is the parallax itself.  Putting this
+    together, the approximate error ellipsoid for the Gaia data is
+    extremely elongated in the radial direction,
+    \begin{equation} \bv{V}(\bv{p}_k) =
+       p_k^2\bigl(\sigma_p^2\bv{Q}_{pk} +
+         (\sigma_\pi/\pi)^2\bh{p}_k\bh{p}_k^T\bigr),
+    \label{eq:pcov}\end{equation}
+    where $\bh{p}_k=\bv{p}_k/p_k$ and $\bv{Q}_{pk}=\bv{I}-\bh{p}_k\bh{p}_k^T.$
+  </p>
+
+  <p>Plugging these rough estimates of the LORRI and Gaia covariances
+    into Eq.(\ref{eq:ucov}),
+    \begin{equation} \bv{V}(\bv{u}_k) = p_k^2\bigl(\sigma_d^2\bv{Q}_k +
+        \sigma_p^2\bv{Q}_k + (e_k\sigma_\pi/\pi)^2\bh{e}_k\bh{e}_k^T\bigr),
+    \label{eq:ucov2}\end{equation}
+    where $\bv{e}_k=e_k\bh{e}_k=\bv{Q}_k\bh{p}_k.$ Note that
+    $e_k=|\bh{p}_k\cross\bh{d}_k|,$ which is the sine of the parallax
+    angle between the SSB and spacecraft directions to the star
+    $\bh{p}_k$ and $\bh{d}_k.$ We have already mentioned that
+    $\sigma_d$ is of order 1&nbsp;&micro;rad.  At the 2016 epoch of
+    DR3, $\sigma_p$ is typically 0.02&nbsp;mas.  However, 4.3 years
+    later in April 2020, Gaia proper motion errors cause the angular
+    errors to increase an order of magnitude to about 0.2&nbsp;mas for
+    Proxima Cen and 0.3&nbsp;mas for Wolf 359.  Thus, $\sigma_p$ is of
+    order 1-2&nbsp;nrad for these high proper motion stars - still a
+    thousand times smaller than $\sigma_d.$ For the third term, the
+    Gaia parallax error $\sigma_pi$ is about 0.05&nbsp;mas for Proxima
+    Cen and 0.07&nbsp;mas for Wolf 359, and $e_k/\pi$ is about 40 for
+    both stars, so $e_k\sigma_\pi/\pi$ is 2&nbsp;mas (10&nbsp;nrad)
+    and 3&nbsp;mas (14&nbsp;nrad), respectively.  The ratio of the
+    standard deviations $\sigma_d:\sigma_p:e_k\sigma_\pi/\pi$ is
+    therefore roughly $1000:1:10.$ We can safely ignore all but the
+    first term in Eq.($\ref{eq:ucov2}$), so that
+    \begin{equation} \bv{Q}_k\BL(\bv{u}_k)\bv{Q}_k = \bv{Q}_k/(p_k\sigma_d)^2
+    \label{eq:ulam2}\end{equation}
+    If we take the $\sigma_d$ to be the same 1&nbsp;&micro;rad error
+    for every star, then this amounts to simple $1/p_k^2$ weighting
+    for the terms in Eq.($\ref{eq:x}$) and Eq.($\ref{eq:xcov}$).</p>
+
+<hr/>
 <!--
 Gaia DR3 5853498713190525696    designation (source_id) Proxima Cen
 2016    ref_epoch

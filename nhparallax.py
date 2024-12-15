@@ -1,5 +1,14 @@
 # calculations for New Horizons Parallax paper
 
+# https://www.numerical.recipes/book.html
+# 3rd edition in C++, section 15.4 General Linear Least Squares pp. 788-799
+# Numerical Recipes: The Art of Scientific Computing, Third Edition,
+# by W.H. Press, S.A. Teukolsky, W.T. Vetterling, and B.P. Flannery.
+# Version 3.04 (2011).
+# Text is Copyright c 1988-2007 by Cambridge University Press.
+# Computer source code is Copyright c 1987-2007 by Numerical Recipes Software.
+# Hardcover ISBN 978-0-521-88068-8 published by Cambridge University Press
+
 from numpy import (array, asfarray, eye, matmul, pi, cos, sin, sqrt,
                    zeros, empty, newaxis, where, arcsin, arctan2)
 # scipy.linalg generally slightly better than numpy.linalg
