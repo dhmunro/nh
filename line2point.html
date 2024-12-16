@@ -57,7 +57,7 @@
     \label{eq:udef}\end{equation}
     is the perpendicular displacement of any point $\bv{x}$ from the
     line determined by $\bh{d}_k$ and $\bv{p}_k.$ The length
-    $|\bv{u}_k|$ is the impact parameter of the line as it passes
+    $u_k=|\bv{u}_k|$ is the impact parameter of the line as it passes
     $\bv{x}.$ Ideally, all $N$ of the $\bv{u}_k=0,$ which is an
     overdetermined system of $3N$ equations for the $3$ unknown
     components of $\bv{x}.$ However, since each $\bv{Q}_k$ is a
@@ -160,7 +160,7 @@
     very rough generic estimate of the $\bv{V}_k(\bv{p}_k)$ to show
     how they might eventually come into play.  In the plane of the
     sky, let $\sigma_p$ be a typical Gaia angular error (in radians
-    like $\sigma_d.$ The Gaia parallax error $\sigma_\pi$, on the
+    like $\sigma_d.$) The Gaia parallax error $\sigma_\pi$, on the
     other hand, causes a much larger range error $p_k\sigma_\pi/\pi,$
     where $\pi\propto 1/p_k$ is the parallax itself.  Putting this
     together, the approximate error ellipsoid for the Gaia data is
@@ -199,7 +199,12 @@
     \label{eq:ulam2}\end{equation}
     If we take the $\sigma_d$ to be the same 1&nbsp;&micro;rad error
     for every star, then this amounts to simple $1/p_k^2$ weighting
-    for the terms in Eq.($\ref{eq:x}$) and Eq.($\ref{eq:xcov}$).</p>
+    for the terms in Eq.($\ref{eq:x}$) and Eq.($\ref{eq:xcov}$).  With
+    Eq.($\ref{eq:ulam2}$), Eq.($\ref{eq:xcov}$) will be a meaningful,
+    if crude, estimate of the error ellipsoid for the spacecraft
+    position.  Since $p_k\sigma_d$ is the transverse displacement of
+    the star caused by an error in direction, we could have written
+    this down immediately.</p>
 
 <hr/>
 <!--
