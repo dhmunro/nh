@@ -458,7 +458,7 @@ def fig2(save=False, draw=False,  name="nhfig2.png", dpi=300):
         kaplan = 0.5*(p0 + p1)
         ax.plot(*kaplan, marker="o", ms=5, c="0.5")  # dot at midpoint
         weighted = matmul(rot, x6-q)  # wxyz-q
-        ax.plot(*weighted, marker="*", ms=12, c="k")
+        ax.plot(*weighted, marker="*", ms=16, c="k")
         ax.plot(*ellipsoid(*weighted, rot, x6cov, 1.e-6), c="k")
         ax.plot(*ellipsoid(*weighted, rot, x6cov, 2.e-6), c="k")
         # P and W themselves with dots at closest approach
