@@ -2,6 +2,7 @@ from datetime import datetime
 
 from numpy import (array, arange, asfarray, pi, cos, sin, sqrt, arctan2,
                    where, matmul, cross, interp)
+from scipy.linalg import svd
 from matplotlib import rc
 from matplotlib.pyplot import (clf, axes, axis, plot, text, arrow, savefig,
                                figure)
@@ -168,10 +169,15 @@ ura_xyz = get_orbit("uranus")
 nep_xyz = get_orbit("neptune")
 plu_xyz = get_orbit("pluto")
 
-prox_p = array([-97953.67951680758, -74843.75608285567, -238585.345246937])
-wolf_p = array([-474237.1701433132, 135103.1850675353, 60541.43185132139])
-prox_d = array([-0.364828764412182, -0.2785603518906408, -0.888427882842520])
-wolf_d = array([-0.9545434996533468, 0.2720115447504638, 0.12188694266412427])
+# old values with just first three images of each star
+# prox_p = array([-97953.67951680758, -74843.75608285567, -238585.345246937])
+# wolf_p = array([-474237.1701433132, 135103.1850675353, 60541.43185132139])
+# prox_d = array([-0.364828764412182, -0.2785603518906408, -0.888427882842520])
+# wolf_d = array([-0.9545434996533468, 0.2720115447504638,0.12188694266412427])
+prox_p = array([-97953.68289082,  -74843.75300592, -238585.34482693])
+wolf_p = array([-474237.16953007,  135103.18821108,   60541.42963995])
+prox_d = array([-0.36482883, -0.27856106, -0.88842763])
+wolf_d = array([-0.95454352,  0.27201153,  0.12188681])
 prox_p, wolf_p = equ2ecl(prox_p), equ2ecl(wolf_p)
 prox_d, wolf_d = equ2ecl(prox_d), equ2ecl(wolf_d)
 # nh is about 2 degrees above ecliptic
@@ -200,6 +206,22 @@ prox_raw, wolf_raw = equ2ecl(*prox_raw), equ2ecl(*wolf_raw)
 
 cb6_rdylbu = ['#d73027', '#fc8d59', '#fee090', '#e0f3f8', '#91bfdb', '#4575b4']
 sns_rdylbu = ['#e34933', '#fca55d', '#fee99d', '#e9f6e8', '#a3d3e6', '#588cc0']
+
+# x, xcov = n_star_solve([proxima.p, wolf.p], [p_dbar, w_dbar])
+x2 = array([13.68164369, -41.82340672, -16.19656273])
+x2cov = array([[1.03768713e+11, 1.71672039e+10, 6.92428360e+10],
+               [1.71672039e+10, 7.08565668e+10, 4.65404606e+10],
+               [6.92428360e+10, 4.65404606e+10, 2.08960579e+11]])
+x2 = equ2ecl(x2)
+x2cov = matmul(_oblq, matmul(x2cov, _oblq.T))
+# x, xcov = n_star_solve([proxima.p]*6+[wolf.p]*6,
+#                        list(proxima_nh.raw_xyz)+list(wolf_nh.raw_xyz))
+x6 = array([13.68164206, -41.82340774, -16.19656615])
+x6cov = array([[1.72947855e+10, 2.86120065e+09, 1.15404727e+10],
+               [2.86120065e+09, 1.18094278e+10, 7.75674343e+09],
+               [1.15404727e+10, 7.75674343e+09, 3.48267632e+10]])
+x6 = equ2ecl(x6)
+x6cov = matmul(_oblq, matmul(x6cov, _oblq.T))
 
 
 def vernal_up(xyz):
@@ -353,7 +375,17 @@ def fig1(prog=3, save=False, name="nhfig1.png", dpi=300):
 
 def circle_pts(x, y, r, npts=256):
     th = arange(npts) * 2.*pi / (npts - 1.)
-    return r*cos(th), r*sin(th)
+    return x + r*cos(th), y + r*sin(th)
+
+
+def ellipsoid(xcen, ycen, rot, xcov, sigma_d=1.e-6, npts=256):
+    # project xcov into plane by rot, then decompose into 2x2 rot and sig**2
+    rot, sig2, _ = svd(matmul(rot, matmul(xcov, rot.T)))
+    # rot is [major_axis, minor_axis].T
+    xy = matmul(rot, array(circle_pts(0., 0., 1., npts)).T[..., None])[..., 0]
+    xy *= sqrt(sig2) * sigma_d  # stretch into ellipse
+    xy = matmul(rot.T, xy[..., None])[..., 0] + array([xcen, ycen])
+    return xy.T
 
 
 def fig2(save=False, draw=False,  name="nhfig2.png", dpi=300):
@@ -369,29 +401,37 @@ def fig2(save=False, draw=False,  name="nhfig2.png", dpi=300):
         ax.clear()
         ax.set_aspect("equal")
         ax.set_axis_off()
-    ax0.axis([-0.78, 0.48, -0.66, 0.60])
-    ax1.axis([-0.98, 0.28, -0.66+0.1, 0.60+0.1])
+    # point to zoom around in ax0: (0, 0), in ax1: (-0.2, 0)
+    ax0.axis([-0.30, 0.30, -0.30, 0.30])
+    ax1.axis([-0.50, 0.10, -0.30, 0.30])
     for r, n, rot, q, d, _0, line, raw, c1, c2, ax in [
             [rprox, 8, rot_prox, prox_q, prox_d, wolf_0, prox_line, prox_raw,
              "#d73027", "#4575b4", ax0],
             [rwolf, 5, rot_wolf, wolf_q, wolf_d, prox_0, wolf_line, wolf_raw,
              "#4575b4", "#d73027", ax1]]:
+        is_ax0 = r < 300000.0
         # axes
         xy = matmul(rot, nh_xyz[:, 169:183]-q[:, None])
         ticks = get_ticks(*xy, 0.03)
         xytk = (asfarray(ticks)[:, :, 7] - asfarray(xy)[:, None, 7]) * 1.6
-        nh_x = matmul(rot, 0.5*(nh_prox + nh_wolf) - q)
-        ax.arrow(*nh_x, 0, 0.54, width=0.002, head_width=0.040, color="0.75")
-        for x in [0.1, 0.2, 0.3, 0.4, 0.5]:
-            ax.plot([nh_x[0]-0.01, nh_x[0]+0.01],
-                    [nh_x[1]+x, nh_x[1]+x], c="0.75", lw=2)
-            sfx = "" if x < 0.45 else " au"
-            ax.text(nh_x[0]+0.02, nh_x[1]+x, str(x)+sfx,
-                    c="0.75", size=10, va="center")
-        ax.arrow(*nh_x, -0.54, 0, width=0.002, head_width=0.040, color="0.75")
-        for x in [0.1, 0.2, 0.3, 0.4, 0.5]:
-            ax.plot([nh_x[0]-x, nh_x[0]-x], [nh_x[1]-0.01, nh_x[1]+0.01],
-                    c="0.75", lw=2)
+        x0, y0 = matmul(rot, 0.5*(nh_prox + nh_wolf) - q)
+        # ax.arrow(x0, y0, 0,0.54, width=0.002, head_width=0.040, color="0.75")
+        ax.plot([x0, x0], [y0-0.5, y0+0.5], c="0.75", lw=2)
+        for tick in arange(-3, 3):
+            tick = 0.1 * (tick if is_ax0 else tick + 1)
+            if tick == 0.0:
+                continue
+            ax.plot([x0-0.01, x0+0.01], [y0+tick, y0+tick], c="0.75", lw=2)
+            ax.text(x0-0.02, y0+tick, "{:4.1f}".format(tick),
+                    c="0.75", size=10, va="center", ha="right")
+        ax.text(x0-0.02, y0+(0.15 if is_ax0 else 0.35), "(au)",
+                c="0.75", size=10, va="center", ha="right")
+        # ax.arrow(x0, y0,-0.54,0, width=0.002, head_width=0.040, color="0.75")
+        ax.plot([x0-0.5, x0+0.5], [y0, y0], c="0.75", lw=2)
+        for tick in 0.1*arange(-4, 5):
+            if tick == 0.0:
+                continue
+            ax.plot([x0+tick, x0+tick], [y0-0.01, y0+0.01], c="0.75", lw=2)
         # arcsec circles and lines
         arcsec = r * pi / 180. / 3600
         for rr in arange(1, n) * 0.1 * arcsec:
@@ -407,17 +447,20 @@ def fig2(save=False, draw=False,  name="nhfig2.png", dpi=300):
         # NH trajectory (right to left in both views)
         # Ticks are exactly 30 days apart at 00:00:00 UTC
         # 2020-02-06, 2020-03-07, 2020-04-06, 2020-05-06, 2020-06-05
+        nh = array([x0, y0])
         ax.plot(*ticks, c="k", lw=0.75)
         ax.plot(*xy, c="k")
-        ax.plot(*(xytk + nh_x[:, None]), c="k")
-        ax.plot(*nh_x, "o", ms=5, c="k")
+        ax.plot(*(xytk + nh[:, None]), c="k")
+        ax.plot(*nh, "o", ms=5, c="k")
         # gray dashed shortest distance line between P and W
         p0, p1 = los_dot, matmul(rot, _0-q)
         ax.plot([p0[0], p1[0]], [p0[1], p1[1]], "--", c="0.5")
         kaplan = 0.5*(p0 + p1)
         ax.plot(*kaplan, marker="o", ms=5, c="0.5")  # dot at midpoint
-        weighted = matmul(rot, wxyz-q)
+        weighted = matmul(rot, x6-q)  # wxyz-q
         ax.plot(*weighted, marker="*", ms=12, c="k")
+        ax.plot(*ellipsoid(*weighted, rot, x6cov, 1.e-6), c="k")
+        ax.plot(*ellipsoid(*weighted, rot, x6cov, 2.e-6), c="k")
         # P and W themselves with dots at closest approach
         ax.plot(*p0, "o", ms=5, c=c1)
         ax.plot(*line, c=c2)
@@ -430,18 +473,18 @@ def fig2(save=False, draw=False,  name="nhfig2.png", dpi=300):
         # annotations
         p0 = matmul(rot, _0 - q)
         p1 = line[:, 1] - line[:, 0]
-        p1 /= sqrt(sum(p1**2)) * 20
-        if r < 300000:  # this is proxima subplot
-            ax.text(-0.765, 0.330, "NH", size="large", c="k")
+        p1 /= sqrt(sum(p1**2)) * 40
+        if is_ax0:  # this is proxima subplot
+            ax.text(-0.28, 0.22, "NH", size="large", c="k")
             # ax.text(0.020, -0.022, "P", size="large", c=c1)
-            ax.text(-0.040, -0.000, "P", size="large", c=c1)
-            ax.text(0.026, -0.415, "W", size="large", c=c2)
-            p0 += [0.05, -0.03]
+            ax.text(0.008, -0.01, "P", size="large", c=c1)
+            ax.text(0.03, -0.16, "W", size="large", c=c2)
+            p0 += [0.045, -0.014]
         else:  # this is wolf subplot
-            ax.text(-0.765, 0.005, "NH", size="large", c="k")
-            ax.text(0.020, -0.022, "W", size="large", c=c1)
-            ax.text(-0.289, 0.242, "P", size="large", c=c2)
-            p0 += [-0.05, 0.]
-        ax.arrow(*p0, *p1, width=0.002, head_width=0.024, color=c2)
+            ax.text(-0.49, -0.075, "NH", size="large", c="k")
+            ax.text(0.01, -0.012, "W", size="large", c=c1)
+            ax.text(-0.113, 0.092, "P", size="large", c=c2)
+            p0 += [-0.025, 0.003]
+        ax.arrow(*p0, *p1, width=0.0007, head_width=0.0084, color=c2)
     if save:
         savefig(name, dpi=dpi, facecolor="w")

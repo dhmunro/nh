@@ -9,6 +9,81 @@
 # Computer source code is Copyright c 1987-2007 by Numerical Recipes Software.
 # Hardcover ISBN 978-0-521-88068-8 published by Cambridge University Press
 
+# New Horizons observations from Marc Buie 12/16/24
+#
+# FITS file names are lor_MET_0x633_pwcs2.fits
+#        e.g.- lor_0449855930_0x633_pwcs2.fits
+#
+# Average coordinates over both visits
+#
+# Proxima Cen
+#    MET      x (px)  y (px)  sigx  sigy    R.A (deg)     Dec (deg)
+# 0449855930 144.738 116.979 0.152 0.098 217.363443584 -62.676359090
+# 0449855931 144.004 118.311 0.129 0.085 217.362917492 -62.676324665
+# 0449855932 143.109 119.819 0.105 0.070 217.362885635 -62.676382283
+# 0449913531 122.843 133.073 0.141 0.099 217.363426385 -62.676305170
+# 0449913532 123.553 132.113 0.128 0.101 217.363267156 -62.676298576
+# 0449913533 124.205 131.142 0.126 0.094 217.362941852 -62.676275021
+#
+# Average  217.363147017 -62.676324134
+#           0.000107009    0.000016359 mean error
+#           0.1768         0.0589      arcsec (dec corrected)
+#
+# GAIA+JPL 217.36312691  -62.67633601
+#            0.00002011   -0.00001188  obs - calc
+#            0.0332       -0.0428      arcsec (dec corrected)
+#
+#
+# Wolf 359
+#    MET      x (px)  y (px)  dx    dy     R.A (deg)     Dec (deg)
+# 0449933827 125.102 122.607 0.138 0.135 164.094316069   7.001013311
+# 0449933832 124.873 122.597 0.113 0.081 164.094306594   7.001021465
+# 0449933837 125.028 122.461 0.079 0.089 164.094305581   7.001002589
+# 0449955456 141.435 120.760 0.102 0.109 164.094312543   7.001050470
+# 0449955461 141.490 120.174 0.088 0.109 164.094270486   7.000971888
+# 0449955466 141.498 120.193 0.085 0.092 164.094292085   7.000989587
+#
+# Average  164.094300560   7.001008218
+#            0.000006885   0.000011084 mean error
+#            0.0246        0.0399      arcsec (dec corrected)
+#
+# GAIA+JPL 164.09426369    7.00103505
+#            0.00003687   -0.00002683  obs - calc
+#            0.1317       -0.0966      arcsec (dec corrected)
+#
+#
+# lor_0449855930 JD 2458961.9214392
+# lor_0449855931 JD 2458961.9214508
+# lor_0449855932 JD 2458961.9214624
+# lor_0449913531 JD 2458962.5881175
+# lor_0449913532 JD 2458962.5881290
+# lor_0449913533 JD 2458962.5881406
+# lor_0449933827 JD 2458962.8229990
+# lor_0449933832 JD 2458962.8230569
+# lor_0449933837 JD 2458962.8231148
+# lor_0449955456 JD 2458963.0733347
+# lor_0449955461 JD 2458963.0733925
+# lor_0449955466 JD 2458963.0734504
+
+# New Horizons positions at these image times from JPL Horizons
+#
+#      JD             x (au)       y (au)       z (au)
+# 2458961.9214508   13.54653189 -42.01288625 -16.45470344  (exact)
+# 2458961.9214624   13.54653193 -42.01288633 -16.45470347
+# 2458962.5881175   13.54862261 -42.01750497 -16.45649592
+# 2458962.5881290   13.54862265 -42.01750505 -16.45649595
+# 2458962.5881406   13.54862268 -42.01750513 -16.45649598
+# 2458962.8229990   13.54935922 -42.01913225 -16.45712745
+# 2458962.8230569   13.54935940 -42.01913265 -16.45712761
+# 2458962.8231148   13.54935958 -42.01913305 -16.45712776
+# 2458963.0733347   13.55014429 -42.02086659 -16.45780053
+# 2458963.0733925   13.55014447 -42.02086699 -16.45780069
+# 2458963.0734504   13.55014465 -42.02086740 -16.45780084
+#
+# First row exact, others computed assuming constant velocity.
+# Total motion in this 27.65 hour period a bit less than 0.01 AU.
+
+
 from numpy import (array, asfarray, eye, matmul, pi, cos, sin, sqrt,
                    zeros, empty, newaxis, where, arcsin, arctan2)
 # scipy.linalg generally slightly better than numpy.linalg
@@ -212,6 +287,7 @@ class NHObservation(object):
             cov /= nobs
         self.raw_radec = raw_radec
         self.raw_errors = raw_errors
+        self.raw_xyz = to_xyz(raw_radec)
         self.ra_dec = ra_dec
         self.ra_dec_cov = cov
         ra, dec = ra_dec
@@ -345,33 +421,119 @@ wolf = GaiaCoordinates(dict(
     parallax_pmdec_corr=-0.026854547,
     pmra_pmdec_corr=-0.16432397))
 
-# Adjust Gaia data to epoch of New Horizons observations.
-proxima.set_epoch(2458961.9214508)
-wolf.set_epoch(2458962.8230569)
-# Note the time from Proxima to Wolf observation (yr).
-dt_wp = wolf.dt - proxima.dt
-
 # Use Simbad radial velocities, converting (km/s) --> (au/yr)
 proxima.raw["radial_velocity"] = -20.578199 * kms2auyr
 proxima.raw["radial_velocity_error"] = 0.004684 * kms2auyr
 wolf.raw["radial_velocity"] = 19.5700 * kms2auyr
 wolf.raw["radial_velocity_error"] = 0.0005 * kms2auyr
 
+# New Horizons trajectory from JPL Horizons
+# Target Body:  New Horizons (spacecraft) [NH New_Horizons]
+# Observer Location:  Solar System Barycenter (SSB) [code: 500]
+#                                RA        DEC      dRA*cosD  d(DEC)/dt
+# 2020-Apr-22 10:06:53.349     287.87127 -20.44346  0.157249  0.022397
+#        delta  deldot:        47.1099608471106  13.8858416
+# This is first image time JD 2458961.9214508.  Here are all the
+# positions at all 12 images, converted to equatorial xyz coordinates:
+jpl_nh = array([
+    [2458961.9214392, 13.54653189, -42.01288625, -16.45470344],
+    [2458961.9214508, 13.54653193, -42.01288633, -16.45470347],
+    [2458961.9214624, 13.54653196, -42.01288641, -16.45470350],
+    [2458962.5881175, 13.54862265, -42.01750505, -16.45649595],
+    [2458962.5881290, 13.54862268, -42.01750513, -16.45649598],
+    [2458962.5881406, 13.54862272, -42.01750521, -16.45649601],
+    [2458962.8229990, 13.54935925, -42.01913233, -16.45712748],
+    [2458962.8230569, 13.54935944, -42.01913273, -16.45712764],
+    [2458962.8231148, 13.54935962, -42.01913313, -16.45712779],
+    [2458963.0733347, 13.55014433, -42.02086667, -16.45780056],
+    [2458963.0733925, 13.55014451, -42.02086707, -16.45780072],
+    [2458963.0734504, 13.55014469, -42.02086748, -16.45780088]])
+jpl_xyz = jpl_nh[:, 1:]
+
 # New Horizons observations - aggregate into single (ra, dec) and cov
 # from Marc Buie.  Use deviations from the mean to estimate covariances.
 maspx = 4080.0  # mas/pixel
 proxima_nh = NHObservation(
-    (217.362885635, -62.676382283),  # lor_0449855932.fits
-    (217.362917492, -62.676324665),  # lor_0449855931.fits
-    (217.363443584, -62.676359090))  # lor_0449855930.fits
+    [217.363443584, -62.676359090],  # MET 0449855930
+    [217.362917492, -62.676324665],  # MET 0449855931
+    [217.362885635, -62.676382283],  # MET 0449855932
+    [217.363426385, -62.676305170],  # MET 0449913531
+    [217.363267156, -62.676298576],  # MET 0449913532
+    [217.362941852, -62.676275021])  # MET 0449913533
+proxima_nh.raw_jd = jpl_nh[:6, 0]
 wolf_nh = NHObservation(
-    (164.094305581, 7.001002589),  # lor_0449933837.fits
-    (164.094306594, 7.001021465),  # lor_0449933832.fits
-    (164.094286808, 7.001023757))  # lor_0449933827.fits
-# proxima ra_dec = 217.363082, -62.676355
-#            std     0.000235    0.000019  corr -0.3903
-#    wolf ra_dec = 164.0942997,   7.0010159
-#            std     0.0000091    0.0000094  corr -0.5442
+    [164.094316069, 7.001013311],  # MET 0449933827
+    [164.094306594, 7.001021465],  # MET 0449933832
+    [164.094305581, 7.001002589],  # MET 0449933837
+    [164.094312543, 7.001050470],  # MET 0449955456
+    [164.094270486, 7.000971888],  # MET 0449955461
+    [164.094292085, 7.000989587])  # MET 0449955466
+wolf_nh.raw_jd = jpl_nh[6:, 0]
+
+p_dbar = proxima_nh.raw_xyz.mean(axis=0)
+p_dbar /= sqrt(sum(p_dbar**2))
+p_radec = to_ra_dec(p_dbar)  # mean Proxima RA Dec for six images
+w_dbar = wolf_nh.raw_xyz.mean(axis=0)
+w_dbar /= sqrt(sum(w_dbar**2))
+w_radec = to_ra_dec(w_dbar)  # mean Wolf RA Dec for six images
+
+# Adjust Gaia data to epoch of New Horizons observations.
+# proxima.set_epoch(2458961.9214508)
+# wolf.set_epoch(2458962.8230569)
+proxima.set_epoch(proxima_nh.raw_jd.mean())
+wolf.set_epoch(wolf_nh.raw_jd.mean())
+# Note the time from Proxima to Wolf observation (yr).
+dt_wp = wolf.dt - proxima.dt
+
+
+def n_star_solve(p, d, weighted=True):
+    """Solve for the most likely position of a spacecraft.
+
+    Given the positions p of N stars and the directions d of those stars
+    as measured by the spacecraft, compute most likely spacecraft position::
+
+        x, xcov, chi2 = n_star_solve([p1, p2, ..., pN], [d1, d2, ..., dN])
+
+    The covariance matrix xcov and the chi2 must be scaled depending on the
+    weighted parameter:
+
+    The default weighted is appropriate if all the d measurements have the
+    same standard error in angle on the sky, say d_err.  Then the covariance
+    matrix will be `d_err**2 * xcov` and chi2 will be `chi2 / d_err**2`.
+
+    Set weighted False if all transverse p positions have the same standard
+    error, say p_err.  Then the covariance matrix will be `p_err**2 * xcov`
+    and chi2 will be `chi2 / p_err**2`.
+
+    Parameters
+    ----------
+    p : (N, 3) array_like
+        coordinates of stars
+    d : (N, 3) array_like
+        unit vectors of directions to stars measured from spacecraft
+    weighted : bool, default True
+        whether to weight distance from lines by 1/r**2 where r is
+        distance to star
+
+    Results
+    -------
+    x : (3) ndarray
+       position of spacecraft (same units and origin as p)
+    xcov : (3, 3) ndarray
+       covariance matrix, scaled depending on value of weighted
+    """
+    p, d = asfarray(p), asfarray(d)
+    q = eye(3) - d[..., newaxis]*d[..., newaxis, :]
+    w = q / (p**2).sum(axis=-1)[..., newaxis, newaxis] if weighted else q
+    xcov = inv(w.sum(axis=0))
+    x = matmul(xcov, matmul(w, p[..., newaxis]).sum(axis=0))[..., 0]
+    xmp = x - p
+    chi2 = (xmp * matmul(w, xmp[..., newaxis])[..., 0]).sum()
+    return x, xcov, chi2
+
+
+#
+# ################## Older ideas #####################
 
 # New Horizons positions according to JPL Horizons
 # - what is coordinate origin here? solar system barycenter?
