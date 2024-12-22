@@ -32,6 +32,13 @@
       max-width: 52em;
       margin: 0 auto;
     }
+    table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+    table th, table td {
+        padding: 0.5em;
+    }
   </style>
 </head>
 <body>
@@ -187,6 +194,60 @@
     ignoring the Gaia terms earlier, and shows how much improvement
     in the direction measurements from the spacecraft would be
     required before the Gaia errors came into play.</p>
+
+<hr/><hr/>
+
+  <h2>Data</h2>
+
+  <p>The NH observations consist of a total of twelve images, six of
+    Proxima Cen split into two "visits" of three 0.5 s exposures, and
+    six of Wolf 359, also split into two visits of 5 s exposures.
+    The three images within each visit are separated by only seconds.
+    The total elapsed time is 27.65 hours, during which time the
+    spacecraft moved 0.0093 au (nearly 1.4 million km at 14 km/s).</p>
+
+  <p>Here are the raw data for $\bh{d}_k$, followed by the raw data for
+    $\bv{p}_k.$</p>
+
+  <table>
+    <caption>NH Observations</caption>
+    <tr><th>Time (UTC)</th><th>Star</th><th>Visit</th>
+      <th>Time (JD)</th><th>R.A. (deg)</th><th>Dec (deg)</th></tr>
+    <tr><td>2020-04-22 10:07</td><td>Proxima Cen</td><td>1</td>
+      <td>2458961.9214392</td><td>217.363443584</td><td>-62.676359090</td></tr>
+    <tr><td>2020-04-22 10:07</td><td>Proxima Cen</td><td>1</td>
+      <td>2458961.9214508</td><td>217.362917492</td><td>-62.676324665</td></tr>
+    <tr><td>2020-04-22 10:07</td><td>Proxima Cen</td><td>1</td>
+      <td>2458961.9214624</td><td>217.362885635</td><td>-62.676382283</td></tr>
+    <tr><td>2020-04-23 02:07</td><td>Proxima Cen</td><td>2</td>
+      <td>2458962.5881175</td><td>217.363426385</td><td>-62.676305170</td></tr>
+    <tr><td>2020-04-23 02:07</td><td>Proxima Cen</td><td>2</td>
+      <td>2458962.5881290</td><td>217.363267156</td><td>-62.676298576</td></tr>
+    <tr><td>2020-04-23 02:07</td><td>Proxima Cen</td><td>2</td>
+      <td>2458962.5881406</td><td>217.362941852</td><td>-62.676275021</td></tr>
+    <tr><td>2020-04-23 07:45</td><td>Wolf 359</td><td>1</td>
+      <td>2458962.8229990</td><td>164.094316069</td><td>7.001013311</td></tr>
+    <tr><td>2020-04-23 07:45</td><td>Wolf 359</td><td>1</td>
+      <td>2458962.8230569</td><td>164.094306594</td><td>7.001021465</td></tr>
+    <tr><td>2020-04-23 07:45</td><td>Wolf 359</td><td>1</td>
+      <td>2458962.8231148</td><td>164.094305581</td><td>7.001002589</td></tr>
+    <tr><td>2020-04-23 13:46</td><td>Wolf 359</td><td>2</td>
+      <td>2458963.0733347</td><td>164.094312543</td><td>7.001050470</td></tr>
+    <tr><td>2020-04-23 13:46</td><td>Wolf 359</td><td>2</td>
+      <td>2458963.0733925</td><td>164.094270486</td><td>7.000971888</td></tr>
+    <tr><td>2020-04-23 13:46</td><td>Wolf 359</td><td>2</td>
+      <td>2458963.0734504</td><td>164.094292085</td><td>7.000989587</td></tr>
+  </table>
+
+  <table>
+    <caption>Gaia Data at mean of visit 1 and visit 2 times</caption>
+    <tr><th>Time (JD)</th><th>R.A (deg)</th><th>Dec (deg)</th>
+      <th>Parallax (mas)</th></tr>
+    <tr><td>2458962.2547899</td><td>217.3824643</td><td>-62.67515412</td>
+      <td>768.06653919</td></tr>
+    <tr><td>2458962.9482247</td><td>164.09852751</td><td>6.99949593</td>
+      <td>415.17941568</td></tr>
+  </table>
 
 </div>
 </body>

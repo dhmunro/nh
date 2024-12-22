@@ -1,6 +1,32 @@
 Overleaf - overleaf.com online LaTeX editor and collaboration tool
   Sign in via ORCID
-  www.overleaf.com/project  - has link to Interstelalr Navigation (lauer)
+  www.overleaf.com/project  - has link to Interstellar Navigation (lauer)
+
+-------------------------------
+
+There are eight stars with 3 pc of us with V magnitude less than 15.
+Two of those - Alpha Cen and Sirius - are multiple star systems, in
+addition to being inconveniently bright for using background stars to
+accurately judge the position of pixels in an image.  The remaining
+six are:
+
+                                           Pair Ellipsoid Axes (au/as)
+                    RA DEC V(mag) r(pc)  P     B     W     H     G     C     NH
+Proxima Cen (P)    217 -63  11.1  1.30        1.06  1.15  1.16  1.17  1.19   63
+Barnard's Star (B) 269   5   9.5  1.83  1.91        1.46  1.49  1.51  1.56   31
+Wolf 359 (W)       164   7  13.5  2.41  2.45  2.58        1.75  1.79  1.87  124
+HD 95735 (H)       166  36   7.5  2.55  2.70  2.60  7.00        1.84  1.93  127
+G 272-61 (G)        25 -18  12.1  2.67  2.71  3.14  5.13  5.56        1.99   90
+CD-23 14742 (C)    282 -24  10.4  2.98  3.64  6.54  3.80  4.24  3.00          6
+
+Table ??. Candidate stars for navigation.  These are all the stars
+with magnitude less than 15 within 3 pc of us, excluding Alpha Cen and
+Sirius.  The Pair Ellipsoid Axes columns show the longest (below
+diagonal) and shortest (above diagonal) axes of the error ellipsoid
+given by Eq.(5) with the corresponding pair of stars, in units of
+au/as (or pc as explained in the text).  The NH column shows the angle
+of the star from the Earth-New Horizons line, which played a role in
+target selection for this study.
 
 -------------------------------
 

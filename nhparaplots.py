@@ -207,15 +207,15 @@ prox_raw, wolf_raw = equ2ecl(*prox_raw), equ2ecl(*wolf_raw)
 cb6_rdylbu = ['#d73027', '#fc8d59', '#fee090', '#e0f3f8', '#91bfdb', '#4575b4']
 sns_rdylbu = ['#e34933', '#fca55d', '#fee99d', '#e9f6e8', '#a3d3e6', '#588cc0']
 
-# x, xcov = n_star_solve([proxima.p, wolf.p], [p_dbar, w_dbar])
+# x, xcov, chi2 = n_star_solve([proxima.p, wolf.p], [p_dbar, w_dbar])
 x2 = array([13.68164369, -41.82340672, -16.19656273])
 x2cov = array([[1.03768713e+11, 1.71672039e+10, 6.92428360e+10],
                [1.71672039e+10, 7.08565668e+10, 4.65404606e+10],
                [6.92428360e+10, 4.65404606e+10, 2.08960579e+11]])
 x2 = equ2ecl(x2)
 x2cov = matmul(_oblq, matmul(x2cov, _oblq.T))
-# x, xcov = n_star_solve([proxima.p]*6+[wolf.p]*6,
-#                        list(proxima_nh.raw_xyz)+list(wolf_nh.raw_xyz))
+# x, xcov, chi2 = n_star_solve([proxima.p]*6+[wolf.p]*6,
+#                              list(proxima_nh.raw_xyz)+list(wolf_nh.raw_xyz))
 x6 = array([13.68164206, -41.82340774, -16.19656615])
 x6cov = array([[1.72947855e+10, 2.86120065e+09, 1.15404727e+10],
                [2.86120065e+09, 1.18094278e+10, 7.75674343e+09],
@@ -388,6 +388,18 @@ def ellipsoid(xcen, ycen, rot, xcov, sigma_d=1.e-6, npts=256):
     return xy.T
 
 
+# Note that the two ticks on either side of April 23 are April 6 and May 6.
+# Distance from x6 to 0.5*(nh_prox + nh_wolf) is 0.35 au.
+#   0.082 arcsec from Proxima line and 0.144 arcsec from Wolf line
+#   (0.020 pixels from Proxima line and 0.035 pixels from Wolf line)
+# Assuming sigma_d = 1 microrad for each individual image, or 0.408 microrad
+#   for 6 aggregated images, the chi2 for the final fit is 26.4 for the
+#   12 line fit (21 degrees of freedom, 13.2-29.6 is 0.9-0.1),
+#   or 0.32 for the 2 line fit (1 degree of freedom, 0.016-2.71 is 0.9-0.1).
+#   The fits are behaving exactly as expected.
+# For 6 aggregated images, actual  NH position 0.5*(nh_prox + nh_wolf)
+#   has chi2 = 4.2 for the 2 line fit (between 0.05 and 0.025 in chi2 distrib)
+#   or chi2 = 30.2 for the 12 line fit (between 0.1 and 0.05, near 0.1)
 def fig2(save=False, draw=False,  name="nhfig2.png", dpi=300):
     fig_2 = figure(2, layout=None)
     fig_2.set_figwidth(10)

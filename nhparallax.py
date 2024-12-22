@@ -85,7 +85,7 @@
 
 
 from numpy import (array, asfarray, eye, matmul, pi, cos, sin, sqrt,
-                   zeros, empty, newaxis, where, arcsin, arctan2)
+                   zeros, empty, newaxis, where, arcsin, arctan2, arange)
 # scipy.linalg generally slightly better than numpy.linalg
 from scipy.linalg import svd, inv, solve, pinv
 from numpy.ma import MaskedArray
@@ -153,6 +153,33 @@ def get_astrometry(*ids, catalog="gaiadr3"):
     return data
 
 
+def get_nearest():
+    table = Simbad.query_tap("""
+SELECT TOP 100 basic.OID, main_id, RA, DEC, plx_value, V
+FROM basic JOIN allfluxes ON oidref = oid
+WHERE (plx_value > 100) AND (V <= 15)
+ORDER BY plx_value DESC;""")
+    oid, main_id, ra, dec, plx, vmag = [
+        array(table[v]) for v in
+        ["oid", "main_id", "ra", "dec", "plx_value", "V"]]
+    main_id = main_id.astype(str)
+    return oid, main_id, ra, dec, plx, vmag
+
+
+def got_nearest():
+    with open("nearby100.txt") as f:
+        for line in f:
+            if line.startswith("------"):
+                break
+        rows = []
+        for line in f:
+            rows.append([col.strip() for col in line.split(",")])
+    okay, oid = array([[int(v) for v in row[:2]] for row in rows]).T
+    ra, dec, plx, vmag = array([[float(v) for v in r[2:6]] for r in rows]).T
+    main_id = array([row[6] for row in rows])
+    return okay, oid, ra, dec, plx, vmag, main_id
+
+
 class GaiaCoordinates(object):
     def __init__(self, job_result):
         self.raw = raw = dict(job_result)
@@ -213,6 +240,16 @@ class GaiaCoordinates(object):
         self.vec = vec
         tshift[0, 3] = dt  # covariances use angle on sky like pmra
         self.cov = cov = matmul(tshift, matmul(self.cov0, tshift.T))
+        # Correct parallax for radial velocity if present
+        radian = pi/180. / 3600000.  # radians/mas
+        if dt and self.raw["radial_velocity"]:
+            # 1/parallax in au, since parallax in radians now
+            r = 1.0/parallax + self.raw["radial_velocity"] * dt  # in au
+            parallax = 1. / r
+            varpllx = ((self.raw["radial_velocity_error"] or 0.0) * dt / r)**2
+            varpllx *= (parallax / radian)**2
+        else:
+            varpllx = None
         # Also compute position p and its covariance pcov
         # p = (cos(dec)*cos(ra), cos(dec)*sin(ra), sin(dec)) / parallax
         #     where p is in parsecs if parallax is in arcsec
@@ -226,7 +263,8 @@ class GaiaCoordinates(object):
         decdir = array([-sd*ca, -sd*sa, cd])
         der = array([radir, decdir, -p]).T / parallax
         cov = cov[:3, :3]  # (ra, dec, parallax) covariances in mas
-        radian = pi/180. / 3600000.  # radians/mas
+        if varpllx:
+            cov[2, 2] += varpllx  # add variance from radial_velocity_error
         # convert covariances to rad**2, then transform to p = (x, y, z)
         self.pcov = pcov = matmul(der, matmul(cov*radian**2, der.T))
         # Do svd decomposition on pcov.
@@ -450,8 +488,7 @@ jpl_nh = array([
     [2458963.0734504, 13.55014469, -42.02086748, -16.45780088]])
 jpl_xyz = jpl_nh[:, 1:]
 
-# New Horizons observations - aggregate into single (ra, dec) and cov
-# from Marc Buie.  Use deviations from the mean to estimate covariances.
+# New Horizons observations from Marc Buie.
 maspx = 4080.0  # mas/pixel
 proxima_nh = NHObservation(
     [217.363443584, -62.676359090],  # MET 0449855930
@@ -486,7 +523,7 @@ wolf.set_epoch(wolf_nh.raw_jd.mean())
 dt_wp = wolf.dt - proxima.dt
 
 
-def n_star_solve(p, d, weighted=True):
+def n_star_solve(p, d, weighted=True, check=None):
     """Solve for the most likely position of a spacecraft.
 
     Given the positions p of N stars and the directions d of those stars
@@ -529,7 +566,67 @@ def n_star_solve(p, d, weighted=True):
     x = matmul(xcov, matmul(w, p[..., newaxis]).sum(axis=0))[..., 0]
     xmp = x - p
     chi2 = (xmp * matmul(w, xmp[..., newaxis])[..., 0]).sum()
-    return x, xcov, chi2
+    if check is None:
+        return x, xcov, chi2
+    # Compute chi2 for independently known x = check
+    xmp = asfarray(check) - p
+    check = (xmp * matmul(w, xmp[..., newaxis])[..., 0]).sum()
+    return x, xcov, chi2, check
+
+
+# Note that LORRI pixels are 4.08 arcsec, tol and tiny are in arcsec.
+def mark_multiple(ra, dec, tol=60., tiny=0.1):
+    """Mark stars in list which are part of visual multiple star systems."""
+    d = to_xyz(ra, dec)
+    dd = sqrt(((d[:, newaxis] - d)**2).sum(axis=-1))
+    dd += eye(d.shape[0])  # change diagonal elements from zero to one
+    dd *= 3600. * 180./pi  # convert radians to arcsec
+    multi = where((dd < tol) & (dd > tiny), True, False).any(axis=0)
+    maybe = where(dd <= tiny, True, False).any(axis=0) & ~multi
+    return multi, maybe
+
+
+def rank_pairs(ra, dec, plx):
+    d = to_xyz(ra, dec)
+    q = eye(3) - d[:, :, newaxis]*d[:, newaxis]
+    r = 1000. / plx  # convert from mas to pc
+    qor2 = q / r[:, newaxis, newaxis]**2
+    nstars = qor2.shape[0]
+    lamda = (qor2[:, newaxis] + qor2).reshape(nstars**2, 3, 3)
+    j = arange(nstars)
+    i = arange(nstars)[:, newaxis] + 0*j
+    j = j + 0*i
+    i, j = i.reshape(nstars**2), j.reshape(nstars**2)
+    mask = where(i < j)
+    lamda, i, j = lamda[mask], i[mask], j[mask]
+    sv = array([svd(m, compute_uv=0) for m in lamda])
+    # The singular values of Q1/r1**2 + Q2/r2**2 are the reciprocals
+    # of the minimum and maximum variances (covariance eigenvalues).
+    # we want to sort them from smallest to largest (small is good).
+    sv = sqrt(sv)  # convert to standard deviations
+    order = (-sv[:, -1]).argsort(axis=0)
+    return 1./sv[order], array([i[order], j[order]]).T
+
+
+def rank_triples(ra, dec, plx):
+    d = to_xyz(ra, dec)
+    q = eye(3) - d[:, :, newaxis]*d[:, newaxis]
+    r = 1000. / plx  # convert from mas to pc
+    qor2 = q / r[:, newaxis, newaxis]**2
+    nstars = qor2.shape[0]
+    lamda = (qor2[:, newaxis, newaxis] + qor2[:, newaxis] + qor2)
+    k = arange(nstars)
+    j = k[:, newaxis] + 0*k
+    i = j[:, :, newaxis] + 0*k
+    j = j + 0*i
+    k = k + 0*i
+    i, j, k = [a.reshape(nstars**3) for a in [i, j, k]]
+    lamda = lamda.reshape(nstars**3, 3, 3)
+    mask = where((i < j) & (j <= k))  # allow more distant star to repeat
+    lamda, i, j, k = lamda[mask], i[mask], j[mask], k[mask]
+    sv = sqrt(array([svd(m, compute_uv=0) for m in lamda]))
+    order = (-sv[:, -1]).argsort(axis=0)
+    return 1./sv[order], array([i[order], j[order], k[order]]).T
 
 
 #
