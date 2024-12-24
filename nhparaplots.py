@@ -320,14 +320,16 @@ nh_ticks = (1. - tickf)*nh_ticks[..., ticki] + tickf*nh_ticks[..., ticki+1]
 # date.  Proxima Cen is about 45 degrees south of the ecliptic, so the
 # P ray is pointing into the page at that angle.  Wolf 359 is nearly in
 # the ecliptic plane, and the spacecraft is within 2 degrees.
-def fig1(prog=3, save=False, name="nhfig1.png", dpi=300):
+def fig1(prog=4, save=False, name="nhfig1.png", dpi=300):
     fig_1 = figure(1)
     clf()
     fig_1.set_figwidth(9.77)
     fig_1.set_figheight(7.45)
     fig_1.set_dpi(100.)
     axes(aspect="equal").set_axis_off()
-    # axis((-50.768, 69.110, -36.685, None))  does weird stuff here
+    # axis() -> (-50.768, 69.11, -36.685, 60.451)
+    plot(-50.768, 60.451, ".w", ms=0.01)  # force savefig to not crop so all
+    plot(69.110, -36.685, ".w", ms=0.01)  # prog values give same png size
     plot(*vernal_up(jup_xyz), c="0.7", lw=1)
     plot(*vernal_up(sat_xyz), c="0.7", lw=1)
     plot(*vernal_up(ura_xyz), c="0.7", lw=1)
@@ -345,12 +347,27 @@ def fig1(prog=3, save=False, name="nhfig1.png", dpi=300):
         px, py = vernal_up(nh_xyz[:, -1])
         text(px+1, py, "NH", size="large", va="center", ha="left", c="k")
     plot(0, 0, "o", ms=5, c="orange")
+    if prog > 3:
+        # Note that prox_d and wolf_d do not have vernal_up applied,
+        # so they are perpendicular to seg_prox and seg_wolf
+        perp = prox_d[:2]
+        perp /= sqrt(sum(perp**2))
+        xp, yp = perp * rprox * (pi / 180. / 3600.)  # 1 arcsec displacement
+        x, y = seg_prox
+        plot(x+xp, y+yp, c="#d73027", lw=0.75, dashes=[0.75, 2])
+        plot(x-xp, y-yp, c="#d73027", lw=0.75, dashes=[0.75, 2])
+        perp = wolf_d[:2]
+        perp /= sqrt(sum(perp**2))
+        xp, yp = perp * rwolf * (pi / 180. / 3600.)  # 1 arcsec displacement
+        x, y = seg_wolf
+        plot(x+xp, y+yp, c="#4575b4", lw=0.75, dashes=[0.75, 2])
+        plot(x-xp, y-yp, c="#4575b4", lw=0.75, dashes=[0.75, 2])
     if prog > 0:
         plot(*seg_prox, c="#d73027")
         text(35, 22.2, "P", size="large", va="center", ha="center",
              c="#d73027")
         ang = arctan2(*(prox_d[:2]*[1, -1])) * 180./pi
-        text(46, 2.5, "Proxima Cen", size=10, c="#d73027", rotation=ang)
+        text(45.1, 2.5, "Proxima Cen", size=10, c="#d73027", rotation=ang)
         c, s = cos(ang * pi/180.), sin(ang * pi/180.)
         arrow(59.8, 2.7, 2.7*c, 2.7*s, width=0.1, head_width=1.2,
               color="#d73027")
@@ -359,15 +376,15 @@ def fig1(prog=3, save=False, name="nhfig1.png", dpi=300):
         text(46.2, 27, "W", size="large", va="center", ha="center",
              c="#4575b4")
         ang = arctan2(*(wolf_d[:2]*[-1, 1])) * 180./pi
-        text(33.1, -27.3, "Wolf 359", size=10, c="#4575b4", rotation=ang)
+        text(32.9, -27.3, "Wolf 359", size=10, c="#4575b4", rotation=ang)
         c, s = -cos(ang * pi/180.), -sin(ang * pi/180.)
         arrow(33.5, -28, 2.7*c, 2.7*s, width=0.1, head_width=1.2,
               color="#4575b4")
     if prog > 1:
-        text(12, 52, "New Horizons 2020-04-23", size=14, c="k")
+        text(8, 52, "New Horizons 2020-04-23", size=14, c="k")
     axis((-50.768, 69.110, -36.685, None))
     if save:
-        if prog < 3:
+        if prog < 4:
             name = name.split(".")
             name = ".".join([name[0] + "-{}".format(prog), name[1]])
         savefig(name, dpi=dpi, facecolor="w")
@@ -462,7 +479,7 @@ def fig2(save=False, draw=False,  name="nhfig2.png", dpi=300):
         nh = array([x0, y0])
         ax.plot(*ticks, c="k", lw=0.75)
         ax.plot(*xy, c="k")
-        ax.plot(*(xytk + nh[:, None]), c="k")
+        # ax.plot(*(xytk + nh[:, None]), c="k")
         ax.plot(*nh, "o", ms=5, c="k")
         # gray dashed shortest distance line between P and W
         p0, p1 = los_dot, matmul(rot, _0-q)

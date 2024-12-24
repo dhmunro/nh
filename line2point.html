@@ -20,6 +20,9 @@
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
           id="MathJax-script">
   </script>
+  <script>
+    MathJax.texReset(3);  // Start equation numbering from 4.
+  </script>
   <style>
     div {
       -moz-box-sizing: border-box;
@@ -47,153 +50,158 @@
 
   <h2>Section 3.1.  The Navigation Methodology</h2>
 
-  <p>Consider first the general problem of determining the location of
-    a spacecraft which makes nearly simultaneous measurements of the
-    unit direction vectors $\bh{d}_k$ to $N$ stars.  If we also have
-    the SSB-based position vectors $\bv{p}_k$ of those stars derived
-    from the Gaia DR3 catalog, then each direction measurement
-    determines a line passing through $\bv{p}_k$ in direction
-    $\bh{d}_k.$  The spacecraft position vector $\bv{x}$ must be
-    the common intersection point of these $N$ lines.  Of course, in
-    practice, no two of these lines will exactly meet, owing to
-    measurement errors in the $\bh{d}_k$ or $\bv{p}_k.$  We want to
-    find the most likely position $\bv{x}$ consistent with these
-    measurement errors.</p>
+  <p>Fig.(3) diagrams the basic geometry of interstellar navigation.
+    We know with great precision the position vectors $\bv{p_k}$ of
+    nearby stars in three dimensions from the Gaia DR3 archive.
+    (We'll return to exactly how precise later.)  We measure the
+    apparent directions to those stars - unit vectors $\bh{d}_k$ -
+    from the vantage point of a spacecraft.  Each such measurement
+    constrains the sapcecraft to lie on the sight line in the
+    direction $\bh{d}_k$ passing through the point $\bv{p}_k,$
+    therefore measuring the directions to two or more stars constrains
+    the spacecraft to lie at the point where all these lines
+    intersect.</p>
 
-  <p>Define $\bv{Q}_k=\bv{I}-\bh{d}_k\bh{d}_k^T$ to be the $3\times 3$
-    projection matrix into the plane normal to $\bh{d}_k.$ Then
-    \begin{equation} \bv{u}_k = \bv{Q}_k(\bv{x} - \bv{p}_k)
-    \label{eq:udef}\end{equation}
-    is the perpendicular displacement of any point $\bv{x}$ from the
-    line determined by $\bh{d}_k$ and $\bv{p}_k.$ The length
-    $u_k=|\bv{u}_k|$ is the impact parameter of the line as it passes
-    $\bv{x}.$ If all the measurements were perfect, then all $N$ of
-    the $\bv{u}_k$ would be exactly zero, giving us an overdetermined
-    system of $3N$ equations for the three components of $\bv{x}.$
-    (Note, however, that since each $\bv{Q}_k$ is a projection into a
-    plane, only $2N$ of these equations are linearly independent, so
-    we need $N\ge 2$ to solve for $\bv{x}.$)</p>
+  <p>In practice, the lines will all be skew, and we are faced with
+    the more nebulous job of describing the position and shape of the
+    region of space where the spacecraft must be located in order to
+    be consistent with all our direction measurements.  Fig(3) hints
+    at this problem with dotted lines on either side of the star sight
+    lines showing the transverse displacements of the lines if our
+    direction measurements had differed by $1''$ of arc.  In fact, the
+    transverse displacement of each line in au is evidently
+    numerically equal to the distance to the corresponding star in pc!
+    We usually think of 1&nbsp;pc as the distance of a star for which
+    a 1&nbsp;au displacement of the observer changes its direction by
+    $1''$, but for navigation problems, we think of it as the distance
+    for which a $1''$ change in direction causes a 1&nbsp;au
+    transverse displacement of the sight line.  A parsec is an au per
+    arcsecond.  Of course, our actual angular errors are not $1''$ -
+    in fact, Fig.(3) shows we do much better - so the spacecraft must
+    actually be in a region with dimensions scaled by the ratio of our
+    actual angle errors to $1''.$</p>
 
-  <p>One very easy and symmetric way to solve for $\bv{x}$ is to
-    simply sum the $\bv{u}_k=0$ equations to get the
-    $\sum_k\bv{u}_k=0,$ which is a $3\times 3$ system of equations for
-    $\bv{x}.$ It turns out that solving this system gives the position
-    $\bv{x}$ with minimum RMS distance to the $N$ lines (hence the
-    common intersection point if all $N$ actually do meet).  However,
-    we wouldn't usually judge this to be the most <em>likely</em>
-    position $\bv{x}$ because our measurement errors will usually
-    constrain $\bv{x}$ to lie closer to some lines than to others.  In
-    order to find the most likely $\bv{x},$ we instead want to minimize
-    \begin{equation} \chi^2 = \sum_k \bv{u}_k^T\BL(\bv{u}_k)\bv{u}_k,
+  <figure>
+    <img src="./nhfig1.png" alt="figure 3" width="534" height="433" />
+    <figcaption><b>Figure 3.</b>The location of New Horizons on 2020
+      April 23 as derived from the directions to Proxima Cen and Wolf
+      359 measured from the spacecraft.  This is the view from the
+      ecliptic north pole; the vertical axis is at zero right
+      ascension and the origin is the solar system barycenter.  The
+      line P passes through the precise GAIA 3-D location of Proxima
+      Cen, in the direction measured from the spacecraft.  In other
+      words, the LORRI image of Proxima Cen constrains the spacecraft
+      to lie on line P. Similarly, the LORRI image of Wolf 359
+      constrains the spacecraft to lie on line W.  The adjacent faint
+      dotted lines show how much P and W would be displaced by a $1''$
+      change in line direction; the transverse displacement in au is
+      just the distance to the star in pc (1.30 for P, 2.41 for W).
+      The trajectory NH is the actual path of the spacecraft from
+      launch in 2006 through 2023, with ticks on January 1 each year.
+      Notice that our actual angular errors must be much less than the
+      $1''$ indicated by the dotted lines.  Proxima Cen is ∼$45^\circ$
+      south of the ecliptic, so line P tilts into the page at that
+      angle; Wolf 359 and the NH trajectory are within $2^\circ$ of
+      the ecliptic.
+    </figcaption>
+  </figure>
+
+  <p>The dotted lines in Fig.(3) actually represent the standard
+    deviation of cylindrical Gaussian probability clouds around the
+    lines P and W.  Our measurements constrain the spacecraft to the
+    ellipsoidal Gaussian probability cloud that is the product of the
+    individual cylindrical distributions - the error ellipsoid to
+    which our measurements constrain the spacecraft position.  You can
+    see the projected shape of this error ellipsoid in the
+    parallelogram where the dotted lines in Fig.(3) cross (scaled up
+    in size as if our angular errors were $1''$) - just picture the
+    ellipse inscribed in that parallelogram.  Given our measurements,
+    the center of this error ellipsoid is the most likely position of
+    our spacecraft, in other words our best guess at $\bv{x}$ given
+    the directions we measured.  The shape and size of the ellipsoid
+    are our estimate of the uncertainty in our determination of
+    $\bv{x}.$</p>
+
+  <p>If the actual spacecraft position is $\bv{x},$ then the actual
+    direction to star $k$ is $(\bv{x}-\bv{p}_k)/|\bv{x}-\bv{p}_k|.$
+    (These are the GAA+JPL entries in Table 2.)  Let $\delta\alpha_k$
+    be the angle between this and our measured direction $\bh{d}_k$ -
+    our measurement error.  Writing $p_k$ for $|\bv{p}_k|,$ then since
+    $\delta\alpha_k$ and $|\bv{x}|/p_k$ are both very small,
+    \begin{equation*} \delta\alpha_k =
+    |\bh{d}_k\cross(\bv{x}-\bv{p}_k)|/p_k,
+    \end{equation*}
+    which we rewrite as
+    \begin{equation} \delta\alpha_k^2 = \bigl(|\bv{x}-\bv{p}_k|^2 -
+    (\bh{d}_k\cdot(\bv{x}-\bv{p}_k))^2\bigr)/p_k^2.
+    \label{eq:alpha2}\end{equation}
+    If our measurements all have the same standard errors in angle,
+    say $\sigma_\alpha,$ then each cylindrical Gaussian cloud will be
+    $\exp(-\tfrac{1}{2}\delta\alpha_k^2/\sigma_\alpha^2),$ so the
+    combined ellipsoidal cloud will be $\exp(-\tfrac{1}{2}\chi^2),$
+    where
+    \begin{equation} \chi^2 = \sum_k\delta\alpha_k^2/\sigma_\alpha^2.
     \label{eq:chi2}\end{equation}
-    where $\BL(\bv{u}_k)$ is the inverse covariance matrix
-    characterizing our measurement errors (see any text on data
-    modeling[Numerical Recipes sec. 15.4]), and we assume that the
-    errors in the $N$ lines are statistically independent of one
-    another.</p>
+    The center of this cloud is where $\chi^2$ is minimum, which is a
+    perfectly well-defined point $\bv{x}$ even when the lines do not
+    exactly meet (that is, when $\chi^2$ never reaches zero).</p>
 
-  <p>To estimate the error in extracting the direction of a star from a
-    particular LORRI image is not easy, and the error will certainly
-    vary from image to image depending on the exact circumstances of
-    spacecraft residual slew rates, exposure times, the background
-    star field, and many other factors.  Many of these factors will
-    not be known until after the image has been made, so for the
-    purposes of planning a set of observations, a reasonable
-    assumption is that the error in $\bh{d}_k$ is simply some angle
-    $\sigma_d$ on the sky.  For a star at distance $p_k=|\bv{p}_k|$
-    this angular error will cause the line determined by $\bh{d}_k$
-    and $\bv{p}_k$ to be displaced by $p_k\sigma_d$.  In other words,
-    the standard deviation in either component of $\bv{u}_k$ caused by
-    our measurement error is $p_k\sigma_d,$ so that
-    \begin{equation} \chi^2 = (1/\sigma_d^2)\sum_k|\bv{u}_k|^2/p_k^2,
-    \label{eq:chi2a}\end{equation}
-    For a single LORRI image, experience has shown us that $\sigma_d$
-    is of order 200&nbsp;mas (1&nbsp;&micro;rad).  A single pixel is
-    4080&nbsp;mas, so this amounts to a twentieth of a pixel.  Note
-    that this is not a question of the resolution of the instrument,
-    but of how well one statistic - the centroid - can be determined
-    for something known to be a point source.  This is very much a
-    ballpark estimate, within perhaps a factor of two or three.</p>
-
-  <p>This $\chi^2$ is minimum when $\sum_k\bv{u}_k/p_k^2=0,$ or
+  <p>What we are describing here is the well-known minimum chi-squared
+    technique for finding the most likely parameters consistent with a
+    set of measurements.  Here, $\chi^2$ is quadratic in $\bv{x},$ so
+    setting its gradient to zero to find its minimum produces a simple
+    $3\times 3$ system of linear equations for $\bv{x}.$  The gradient
+    of Eq.(\ref{eq:alpha2}) is
+    \begin{align*}
+    \nabla\delta\alpha_k^2&= (2/p_k^2)\bigl((\bv{x}-\bv{p}_k)
+                   - \bh{d}_k\bh{d}_k\cdot(\bv{x}-\bv{p}_k)\bigr) \\
+                 &= (2/p_k^2)\bv{Q}_k(\bv{x}-\bv{p}_k),
+    \end{align*}
+    where we have defined $\bv{Q}_k=\bv{I}-\bh{d}_k\bh{d}_k^T$ as the
+    $3\times 3$ matrix which projects vectors into the plane
+    perpendicular to $\bh{d}_k.$  Setting $\nabla\chi^2=0$ and solving
+    for $\bv{x}$ gives
     \begin{equation} \bv{x} =
-        \bigl(\bv{V}(\bv{x})/\sigma_d^2\bigr)\sum_k\bv{Q}_k\bv{p}_k/p_k^2,
+        \BL^{-1}\sum_k\bv{Q}_k\bv{p}_k/p_k^2,
     \label{eq:x}\end{equation}
     where
-    \begin{equation} \bv{V}(\bv{x}) = \sigma_d^2
-        \bigl(\sum_k\bv{Q}_k/p_k^2\bigr)^{-1}
+    \begin{equation} \BL = \sum_k\bv{Q}_k/p_k^2.
+    \label{eq:xlambda}\end{equation}
+  </p>
+
+  <p>Eq.(\ref{eq:alpha2}) looks simpler when expressed in matrix
+    notation using the $\bv{Q}_k$ projection operator, so we can
+    rewrite Eq.(\ref{eq:chi2}) as
+    \begin{equation} \chi^2 = (1/\sigma_\alpha^2)
+           \sum_k(\bv{x}-\bv{p}_k)^T\bv{Q}_k(\bv{x}-\bv{p}_k)/p_k^2.
+    \label{eq:chi2a}\end{equation}
+
+    Now $\chi^2$ is just a quadratic in $\bv{x},$ and its second
+    degree terms are proportional to $x^T\sum_k\bv{Q}_k/p_k^2 x,$ or
+    $x^T\BL x.$ By construction, $\BL$ is a symmetric positive
+    definite $3\times 3$ matrix, so its eigenvalues are positive and
+    its eigenvectors form an orthogonal basis.  Since the ellipsoidal
+    probability distribution for $\bv{x}$ is
+    $\exp(-\tfrac{1}{2}\chi^2),$ those eigenvectors are the principal
+    axes of the error ellipsoid, and the corresponding eigenvalues are
+    the squares of its semi-axes.  Thus,
+
+    \begin{equation} \bv{V}_\bv{x} = \sigma_\alpha^2\BL^{-1}
+      = \sigma_\alpha^2\bigl(\sum_k\bv{Q}_k/p_k^2\bigr)^{-1}
     \label{eq:xcov}\end{equation}
-    is the covariance matrix for the errors we can expect in our
-    solution $\bv{x}.$[Numerical Recipes sec. 15.4]  That is,
-    we expect some components of $\bv{x}$ to be more accurately
-    determined than others by the specific stars we choose, and this
-    $\bv{V}(\bv{x})$ determines the associated error ellipsoid.</p>
+    is the covariance matrix for for our most likely spacecraft position
+    $\bv{x}$ given by Eq.(\ref{eq:x}).</p>
 
   <p>Eq.($\ref{eq:x}$) matches the formulas given in Kaplan [2011],
     with the $1/p_k^2$ providing the weights for the terms in the sum.
-    In particular, notice that if we had simply minimized
-    $\chi^2=\sum_k|\bv{u}_k|^2,$ then Eq.($\ref{eq:x}$) would have
-    been the simple $\sum_k\bv{u}_k=0$ solution mentioned above, which
-    minimizes the RMS distance of $\bv{x}$ from all the lines.  For
-    the $N=2$ case, notice that $\bv{x}$ will always lie on the line
-    segment connecting the points of closest approach of the two
-    lines, which is perpendicular to both lines.  (Projecting any
-    point not on the connecting line onto it, will reduce $\chi^2$
-    according to Eq.($\ref{eq:chi2a}$).)  In fact, $\bv{x}$ will
-    lie at the point dividing that connecting line segment in the
-    ratio $p_1^2:p_2^2,$ so that $\bv{x}$ will be closer to the line
-    to the nearer star.</p>
+    {More here.]</p>
 
-  <p>Unlike the situation for $\bh{d}_k,$ the Gaia DR3 catalog
-    provides extensive information about the detailed covariance
-    matrix $\bv{V}(\bv{p}_k)$ associated with each star position.
-    These errors are completely negligible compared to the LORRI
-    errors.  However, if New Horizons were much farther away, or if it
-    had a more accurate astrometry instrument, eventually the long
-    baseline would make the spacecraft direction measurements
-    competitive with Gaia for finding the distances to stars.  How
-    much better would our measurements need to be for that to
-    happen?</p>
-
-  <p>Ignoring all of the detailed information for error covariances of
-    individual stars in the Gaia catalog, we can treat the errors in
-    the Gaia data in a manner roughly analogous to our estimate of the
-    LORRI errors.  Thus, the Gaia error in angles on the sky are
-    similar for most stars, with a standard deviation $\sigma_p$ of
-    order 0.02&nbsp;mas (0.1&nbsp;nrad), while the errors in parallax
-    $\sigma_\pi$ are a bit larger.  For high proper motion stars like
-    Proxima Cen and Wolf 359, $\sigma_\pi$ is 0.05&nbsp;mas or
-    somewhat more, and the error $\sigma_p$ in angle on the sky grows
-    quite rapidly as the epoch moves away from the 2016 DR3 epoch.  In
-    the 4.3 years from 2016.0 to our April 2020 observations,
-    $\sigma_p$ has grown an order of magnitude, to roughly
-    1&nbsp;nrad.</p>
-
-  <p>Changing the direction $\bh{p}_k$ by $\sigma_p$ would change
-    $\bv{u}_k$ by $p_k\sigma_p.$ Changing the parallax by $\sigma_\pi$
-    causes a much larger error in the distance of $p_k\sigma_k/\pi,$
-    but only the small component of this perpendicular to $\bh{d}_k$
-    has any effect on $\bv{u}_k.$ Define
-    $\bv{e}_k=e_k\bh{e}_k=\bv{Q}_k\bh{p}_k,$ so that $e_k$ is the
-    small angle between the Gaia direction $\bh{p}_k$ and the measured
-    direction $\bh{d}_k$ from New Horizons.  Then changing the parallax
-    by $\sigma_\pi$ would change $\bv{u}_k$ by $p_ke_k\sigma_k/\pi$
-    in the direction $\bh{e}_k$ on the sky.  Including the LORRI
-    angular error $\sigma_d,$ the covariance matrix for $\bv{u}_k$
-    is roughly
-    \begin{equation} \bv{V}(\bv{u}_k) = p_k^2\bigl(\sigma_d^2\bv{Q}_k +
-        \sigma_p^2\bv{Q}_k + (e_k\sigma_\pi/\pi)^2\bh{e}_k\bh{e}_k^T\bigr).
-    \label{eq:ucov2}\end{equation}
-    The $\BL(\bv{u}_k)$ for Eq.($\ref{eq:chi2}$) is the pseudo-inverse
-    of this covariance $\bv{V}(\bv{u}_k),$ that is,
-    $\BL(\bv{u}_k)\bv{V}(\bv{u}_k)=\bv{Q}_k.$ For our case,
-    $e_k\sigma_\pi/\pi$ is of order 2&nbsp;mas (10&nbsp;nrad).  Hence,
-    the ratio of the standard deviations
-    $\sigma_d:\sigma_p:e_k\sigma_\pi/\pi$ in the three terms of
-    Eq.($\ref{eq:ucov2}$) is roughly $1000:1:10.$  This justifies
-    ignoring the Gaia terms earlier, and shows how much improvement
-    in the direction measurements from the spacecraft would be
-    required before the Gaia errors came into play.</p>
+  <p>Eq.(5) for the covariance matrix is basically the harmonic mean
+    of the $p_k^2,$ with the $\bv{Q}_k$ allowing for the angles
+    among the directions to the stars.  Notice that if the $p_k$ are
+    in units of pc and $\sigma_d$ is in seconds of arc, then
+    $p_k\sigma_d$ will have units of au.
+  </p>
 
 <hr/><hr/>
 
