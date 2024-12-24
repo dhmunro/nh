@@ -48,7 +48,7 @@
 <div class="textcolumn">
   <h1 style="text-align: center;">Line to Point Formulas</h1>
 
-  <h2>Section 3.1.  The Navigation Methodology</h2>
+  <h2>Section 3.1. The Navigation Methodology</h2>
 
   <p>Fig.(3) diagrams the basic geometry of interstellar navigation.
     We know with great precision the position vectors $\bv{p_k}$ of
@@ -83,7 +83,7 @@
 
   <figure>
     <img src="./nhfig1.png" alt="figure 3" width="508" height="433" />
-    <figcaption><b>Figure 3.</b>The location of New Horizons on 2020
+    <figcaption><b>Figure 3.</b> The location of New Horizons on 2020
       April 23 as derived from the directions to Proxima Cen and Wolf
       359 measured from the spacecraft.  This is the view from the
       ecliptic north pole; the vertical axis is at zero right
@@ -175,26 +175,96 @@
     \begin{equation} \chi^2 = (1/\sigma_\alpha^2)
            \sum_k(\bv{x}-\bv{p}_k)^T\bv{Q}_k(\bv{x}-\bv{p}_k)/p_k^2.
     \label{eq:chi2a}\end{equation}
-
     Now $\chi^2$ is just a quadratic in $\bv{x},$ and its second
-    degree terms are proportional to $x^T\sum_k\bv{Q}_k/p_k^2 x,$ or
-    $x^T\BL x.$ By construction, $\BL$ is a symmetric positive
-    definite $3\times 3$ matrix, so its eigenvalues are positive and
-    its eigenvectors form an orthogonal basis.  Since the ellipsoidal
+    degree terms are proportional to
+    $\bv{x}^T\bigl(\sum_k\bv{Q}_k/p_k^2\bigr)\bv{x},$ or $\bv{x}^T\BL
+    \bv{x}.$ By construction, $\BL$ is a symmetric positive definite
+    $3\times 3$ matrix, so its eigenvalues are positive and its
+    eigenvectors form an orthogonal basis.  Since the ellipsoidal
     probability distribution for $\bv{x}$ is
     $\exp(-\tfrac{1}{2}\chi^2),$ those eigenvectors are the principal
     axes of the error ellipsoid, and the corresponding eigenvalues are
     the squares of its semi-axes.  Thus,
-
     \begin{equation} \bv{V}_\bv{x} = \sigma_\alpha^2\BL^{-1}
       = \sigma_\alpha^2\bigl(\sum_k\bv{Q}_k/p_k^2\bigr)^{-1}
     \label{eq:xcov}\end{equation}
-    is the covariance matrix for for our most likely spacecraft position
-    $\bv{x}$ given by Eq.(\ref{eq:x}).</p>
+    is the covariance matrix for for our most likely spacecraft
+    position $\bv{x}$ given by Eq.(\ref{eq:x}).  Its eigenvalues (or
+    singular values) are the squares of the principal axes of the
+    error ellipsoid for the spacecraft position $\bv{x}$ calculated
+    using Eq.($\ref{eq:x}$).  Note that if $p_k$ are in parsecs and
+    $\sigma_\alpha$ is in arcseconds, then the units of
+    $\bv{V}_\bv{x}$ will be au$^2.$ Eq.($\ref{eq:xcov}$) is a sort of
+    matrix harmonic mean of the $p_k^2,$ with the $\bv{Q}_k$
+    projection matrices providing weighting to account for the angles
+    among the stars.</p>
 
   <p>Eq.($\ref{eq:x}$) matches the formulas given in Kaplan [2011],
     with the $1/p_k^2$ providing the weights for the terms in the sum.
-    {More here.]</p>
+    [More here.]</p>
+
+  <p>To estimate the error $\sigma_\alpha$ in extracting the direction
+    of a star from a particular LORRI image is not easy, and the error
+    will certainly vary from image to image depending on the exact
+    circumstances of spacecraft residual slew rates, exposure times,
+    the background star field, and many other factors.  Many of these
+    factors will not be known until after the image has been made, so
+    for the purposes of planning a set of observations, a reasonable
+    assumption is that the error in $\bh{d}_k$ is simply some angle
+    $\sigma_\alpha$ on the sky.  For a star at distance $p_k$ (in pc)
+    an error $\sigma_\alpha$ (in $''$) will cause the line determined
+    by $\bh{d}_k$ and $\bv{p}_k$ to be displaced by
+    $p_k\sigma_\alpha$.  For a single LORRI image, experience has
+    shown us that $\sigma_\alpha$ is of order $0''\!\!.2$
+    (1&nbsp;&micro;rad).  A single pixel is $4''\!\!.08$, so this
+    amounts to 0.05 pixel.  Note that this is not a question of the
+    resolution of the instrument, but of how well one statistic - the
+    centroid - can be determined for something known to be a point
+    source.  This is very much a ballpark estimate, within perhaps a
+    factor of two or three.</p>
+
+  <p>We have been ignoring any errors in the Gaia DR3 data for good
+    reason.  Typical Gaia position errors are of order $0''\!\!.00003$
+    at its baseline J2016.0 epoch, although errors in Gaia proper
+    motions very rapidly degrade this accuracy over the 4.3&nbsp;yr
+    interval to April 2020, at least for high proper motion stars like
+    Proxima Cen and Wolf 359.  For them, the Gaia position errors have
+    dropped to of order $0''\!\!.0003$ - but that is still a factor of
+    a thousand less than $\sigma_\alpha.$ Gaia parallax errors are
+    also of order $0''\!\!.00005,$ causing an uncertainty in $p_k$ of
+    about 20&nbsp;au for Proxima Cen, and 80&nbsp;au for Wolf 359.
+    These differences are projected transverse to the line of sight
+    from the spacecraft by the same tiny angle of a few seconds of arc
+    shown in Fig.(1) and Fig.(2), again causing a completely
+    negligible uncertainty in the transverse displacement of line P or
+    W in Fig.(3).</p>
+
+  <p>Although the angular error in the direction measurement for a
+    single LORRI image is of order $0''\!\!.2,$ we routinely reduce
+    this error by averaging the measurements from several images of
+    the same target.  In this case, we have a total of six images each
+    of Proxima Cen and Wolf 359, which we believe reduces
+    $\sigma_\alpha$ by a factor of $\sqrt{6},$ to a bit under
+    $0''\!\!.1$ or 0.025 pixel.  Eventually, systematic errors and
+    drifts will put a halt to this improvement, but for the case of
+    LORRI, we are not sure what the best acheivable $\sigma_\alpha$
+    might be.</p>
+
+  <p>Although we have aggregated our six images of each star into a
+    single direction measurement for the purposes of the plot in
+    Fig.(4), we point out that Eq.($\ref{eq:x}$) and
+    Eq.($\ref{eq:xcov}$) produce exactly the same values of both
+    $\bv{x}$ and its covariance matrix (error ellipsoid)
+    $\bv{V}_\bv{x}$ if you feed the directions of all twelve images
+    into them, as if they were $N=12$ individual stars.  That is,
+    $\bv{x}$ for this $N=12$ set of directions will be exactly the
+    same as if you had used the mean $\bh{d}_k$ from the six images of
+    the same star in an $N=2$ application of Eq.($\ref{eq:x}$).
+    Similarly, an $N=12$ version of Eq.($\ref{eq:xcov}$) will produce
+    the same error ellipsoid as the $N=2$ version with $\sigma_\alpha$
+    reduced by $\sqrt{6}.$</p>
+
+  <h2>Section 3.1. The Derived Position of New Horizons</h2>
 
   <figure>
     <img src="./nhfig2.png" alt="figure 4" width="714" height="340" />

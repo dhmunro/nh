@@ -153,17 +153,19 @@ def get_astrometry(*ids, catalog="gaiadr3"):
     return data
 
 
-def get_nearest():
+# http://simbad.cds.unistra.fr/guide/otypes.htx  for otype meanings
+def get_nearest(mag=15, parallax=100):
     table = Simbad.query_tap("""
-SELECT TOP 100 basic.OID, main_id, RA, DEC, plx_value, V
+SELECT TOP 100 basic.OID, main_id, RA, DEC, plx_value, V, otype
 FROM basic JOIN allfluxes ON oidref = oid
-WHERE (plx_value > 100) AND (V <= 15)
-ORDER BY plx_value DESC;""")
-    oid, main_id, ra, dec, plx, vmag = [
+WHERE (plx_value > {}) AND (V <= {})
+ORDER BY plx_value DESC;""".format(parallax, mag))
+    oid, main_id, ra, dec, plx, vmag, otype = [
         array(table[v]) for v in
-        ["oid", "main_id", "ra", "dec", "plx_value", "V"]]
+        ["oid", "main_id", "ra", "dec", "plx_value", "V", "otype"]]
     main_id = main_id.astype(str)
-    return oid, main_id, ra, dec, plx, vmag
+    otype = otype.astype(str)
+    return oid, main_id, ra, dec, plx, vmag, otype
 
 
 def got_nearest():
