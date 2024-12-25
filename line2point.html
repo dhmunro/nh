@@ -264,6 +264,68 @@
     the same error ellipsoid as the $N=2$ version with $\sigma_\alpha$
     reduced by $\sqrt{6}.$</p>
 
+  <p>The size and shape of the error ellipse given by
+    Eq.($\ref{eq:xcov}$) can also be used as a design tool to develop
+    an observational program for locating a spacecraft.  Since the
+    accuracy of the derived position is directly proportional to the
+    distance of the star, only a few of the nearest stars are
+    realistic candidates for this purpose.  Using
+    Eq.($\ref{eq:xcov}$), you can rank all of the pairs of these
+    navigation candidate stars by their performance in constraining
+    spacecraft position.  To do this, you set $\bh{d}_k$ equal to
+    $\bv{p}_k/p_k$ (a very good approximation), and do a singular
+    value decomposition of the resulting
+    $\bv{V}_\bv{x}/\sigma_\alpha^2$ matrix.  The square roots of the
+    largest and smallest singular values are the shortest and longest
+    axes of the error ellipse for a position determination based on
+    the directions of that pair of stars.  The best pair for
+    determining spacecraft positon will be the one with the smallest
+    long axis.  If you put in the $p_k$ in units of pc, the error
+    ellipse axis will be in au per arcsecond of $\sigma_\alpha.$
+    Table 4x shows all five of the navigational candidate stars within
+    3&nbsp;pc and the performance of all ten pairs of them.</p>
+
+  <figure>
+    <pre role="img" aria-label="table 4x">
+                                              Pair Ellipsoid Axes (au/as)
+                        RA   DEC V(mag) r(pc)  P     B     W     H     C     NH
+    Proxima Cen (P)    217° -63°  11.1  1.30        1.06  1.15  1.16  1.19   63°
+    Barnard's Star (B) 269°   5°   9.5  1.83  1.91        1.46  1.49  1.56   31°
+    Wolf 359 (W)       164°   7°  13.5  2.41  2.45  2.58        1.75  1.87  124°
+    HD 95735 (H)       166°  36°   7.5  2.55  2.70  2.60  7.00        1.93  127°
+    CD-23 14742 (C)    282° -24°  10.4  2.98  3.64  6.54  3.80  4.24          6°
+    </pre>
+    <figcaption><b>Table 4x.</b> Candidate navigation stars within 3
+      pc.  (The other three stars within 3 pc are Alpha Cen, Sirius,
+      and UV Ceti, excluded here because they are multiple star
+      systems.  Sirius and Alpha Cen are also too bright.)  The Pair
+      Ellipsoid Axes columns are the largest (below diagonal) and
+      smallest (above diagonal) axes of the error ellipsoid computed
+      using Eq.($\ref{eq:xcov}$) for the corresponding pair.  The NH
+      column shows the angle of the star from the SSB-New Horizons
+      direction, which was a separate criterion for the parallax
+      program of the present study discussed in section 2.
+    </figcaption>
+  </figure>
+
+  <p>We originally thought that increasing the number of different
+    stars would be important to improve the accuracy of a position
+    determination based on observations of their directions.  However,
+    Eq.($\ref{eq:xcov}$) tells a different story.  You can also use it
+    to rank the relative performance of three or four or any number of
+    stars accordinag to the size of the error ellipse they produce.
+    When we did this, we discovered that it is almost always better to
+    repeat an image of a closer star that you have already used, than
+    to add an image of a new more distant star.  This is certainly
+    true of Proxima Cen and Wolf 359: If you want to improve the
+    accuracy of $\bv{x},$ by choosing a third star to image, your very
+    best option among all the stars in the sky is to repeat your
+    direction measurement of Wolf 359.  The resulting reduction in the
+    long axis of your error ellipse will be better than any third
+    star.  For navigation purposes, your best strategy is to choose
+    the best pair you can, and image them over and over to beat down
+    their effective $\sigma_\alpha.$</p>
+
   <h2>Section 3.1. The Derived Position of New Horizons</h2>
 
   <figure>
