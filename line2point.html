@@ -313,20 +313,42 @@
     determination based on observations of their directions.  However,
     Eq.($\ref{eq:xcov}$) tells a different story.  You can also use it
     to rank the relative performance of three or four or any number of
-    stars accordinag to the size of the error ellipse they produce.
+    stars according to the size of the error ellipse they produce.
     When we did this, we discovered that it is almost always better to
     repeat an image of a closer star that you have already used, than
     to add an image of a new more distant star.  This is certainly
     true of Proxima Cen and Wolf 359: If you want to improve the
-    accuracy of $\bv{x},$ by choosing a third star to image, your very
+    accuracy of $\bv{x}$ by choosing a third star to image, your very
     best option among all the stars in the sky is to repeat your
     direction measurement of Wolf 359.  The resulting reduction in the
-    long axis of your error ellipse will be better than any third
-    star.  For navigation purposes, your best strategy is to choose
+    longest axis of your error ellipse will be better than any other
+    star.  For navigation purposes, your optimal strategy is to choose
     the best pair you can, and image them over and over to beat down
     their effective $\sigma_\alpha.$</p>
 
   <h2>Section 3.1. The Derived Position of New Horizons</h2>
+
+  <p>Fig.(4) shows in detail what happened when we applied this
+    methodology to our Proxima Cen and Wolf 359 direction
+    measurements.  On the left is a zoomed-in view of the same
+    geomtery depicted in Fig.(3), viewed in the measured direction of
+    Proxima Cen, so that the line P has been reduced to a point.  On
+    the right is the analogous view at the same scale in the direction
+    of Wolf 359, reducing the line W to a point.  These are the
+    aggregated lines, so the directions $\bh{d}_k$ are the means of
+    the directions measured in the six individual images of each star.
+    The faint dotted circles and lines are at multiples of $0''\!\!.1$
+    from the P and W lines; recall that our estimated $\sigma_\alpha$
+    is a bit less than this at $0''\!\!.2/\sqrt{6}=0''\!\!.087.$ The
+    star marks our best estimate of the spacecraft position $\bv{x}$
+    from Eq.($\ref{eq:x}$).  The actual spacecraft position on April
+    23, 2020 according to JPL is at the intersection of the two gray
+    axes.  It is 0.350&nbsp;au away from the starred position derived
+    from our LORRI images.  The solid ellipses are the 1-sigma and
+    2-sigma error ellipses from Eq.($\ref{eq:xcov}$).  The actual
+    position is near the 2-sigma error ellipse, which probably means
+    that our assumed $0''\!\!.2$ error for a single LORRI image is too
+    optimistic - it may be nearer 0.1 pixel than 0.05 pixel.</p>
 
   <figure>
     <img src="./nhfig2.png" alt="figure 4" width="714" height="340" />
@@ -346,7 +368,7 @@
       views).  The lines are 0.133 au apart at closest approach.  The
       midpoint of the dashed connecting line is indicated by a gray
       dot.  The most likely spacecraft position $\bv{x}$ from
-      Eq.(\{eq:x}) is indicated by the star.  It is 0.350 au from the
+      Eq.(\ref{eq:x}) is indicated by the star.  It is 0.350 au from the
       true spacecraft position.  The faint dotted lines are nested
       cylinders around the P and W lines every $0''\!\!.1.$ The
       ellipses are the 1-sigma and 2-sigma error ellipses from
@@ -354,6 +376,27 @@
       individual LORRI image.
     </figcaption>
   </figure>
+
+  <p>For the case of two lines, it is clear that the minimum $\chi^2$
+    must occur on the shortest line segment connecting the two lines,
+    which is the dashed gray line in Fig.(4): You could decrease the
+    $\chi^2$ of any point off this line by zeroing its component
+    perpendicular to the line.  This dashed line lies in the planes of
+    both the left and right views; its direction is the cross product
+    of the directions of the P and W lines.  The most likely point -
+    the starred point - divides this connecting line into two parts
+    with lengths in the ratio $p_1^2:p_2^2.$ Note that as the more
+    distant star gets farther and farther away, the $\bv{x}$ from
+    Eq.($\ref{eq:x}$) rapidly converges on the line determined by the
+    nearer star; at the same time, the error ellipse from
+    Eq.($\ref{eq:xcov}$) becomes more and more cigar shaped, aligned
+    with the near star line.  This tendency is already evident in
+    Fig.(4) with WOlf 359 1.85 times farther away than Proxima
+    Cen.</p>
+
+  <p>[Some version of Table 4 goes here, giving the positions of the
+    JPL and solution points shown in Fig. 3]
+  </p>
 
 <hr/><hr/>
 
