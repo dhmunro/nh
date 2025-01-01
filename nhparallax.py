@@ -509,6 +509,19 @@ wolf_nh = NHObservation(
     [164.094292085, 7.000989587])  # MET 0449955466
 wolf_nh.raw_jd = jpl_nh[6:, 0]
 
+pxysig = array([[0.152, 0.098],
+                [0.129, 0.085],
+                [0.105, 0.070],
+                [0.141, 0.099],
+                [0.128, 0.101],
+                [0.126, 0.094]])
+wxysig = array([[0.138, 0.135],
+                [0.113, 0.081],
+                [0.079, 0.089],
+                [0.102, 0.109],
+                [0.088, 0.109],
+                [0.085, 0.092]])
+
 p_dbar = proxima_nh.raw_xyz.mean(axis=0)
 p_dbar /= sqrt(sum(p_dbar**2))
 p_radec = to_ra_dec(p_dbar)  # mean Proxima RA Dec for six images
