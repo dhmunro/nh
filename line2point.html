@@ -48,23 +48,20 @@
 <div class="textcolumn">
   <h1 style="text-align: center;">Line to Point Formulas</h1>
 
+  <p>Eigenvalues of $(\bv{Q}_0/p_0^2+\bv{Q}_1/p_1^2)^{-1}$ where
+    $\sin\theta=|\bh{d}_0\cross\bh{d}_1|$:
+
   \begin{equation*}
-  p^2_{max} = \frac{&lt;p_k^2&gt;_a+\sqrt{&lt;p_k^2&gt;_a^2 - &lt;p_k^2&gt;_g^2\sin^2\theta}}{\sin^2\theta}
+  p^2_{min} = \frac{p_0^2p_1^2}{p_0^2+p_1^2}
   \end{equation*}
 
   \begin{equation*}
-  p^2_{min} = \frac{&lt;p_k^2&gt;_g^2}{&lt;p_k^2&gt;_a}
+  p^2_{max} = \frac{p_0^2+p_1^2}{2\sin^2\theta}\left(1 +
+    \left({1 - \left(\frac{p_0p_1\sin\theta}{p_0^2+p_1^2}\right)^{\!\!2}}\right)^{\!\!1/2}\right)
   \end{equation*}
 
-  \begin{equation*}
-  p^2_{max} = \frac{&lt;p_k^2&gt;_a}{\sin^2\theta}\left(1 +
-    \sqrt{1 - p^2_{min}\sin^2\theta/&lt;p_k^2&gt;_a}\right)
-  \end{equation*}
-
-  \begin{equation*}
-  p^2_{max} = \frac{&lt;p_k^2&gt;_a}{\sin^2\theta}\left(1 +
-    \sqrt{1 - (&lt;p_k^2&gt;_g\sin\theta/&lt;p_k^2&gt;_a)^2}\right)
-  \end{equation*}
+    The intermediate eigenvalue is $p_{max}^2$ with the opposite sign of the
+    square root.</p>
 
   <h2>Section 3.1. The Navigation Methodology</h2>
 
