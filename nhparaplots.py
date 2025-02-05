@@ -5,7 +5,7 @@ from numpy import (array, arange, asfarray, pi, cos, sin, sqrt, arctan2,
 from scipy.linalg import svd
 from matplotlib import rc
 from matplotlib.pyplot import (clf, axes, axis, plot, text, arrow, savefig,
-                               figure)
+                               figure, fignum_exists)
 
 rc('lines', linewidth=2)
 
@@ -417,12 +417,21 @@ def ellipsoid(xcen, ycen, rot, xcov, sigma_d=1.e-6, npts=256):
 # For 6 aggregated images, actual  NH position 0.5*(nh_prox + nh_wolf)
 #   has chi2 = 4.2 for the 2 line fit (between 0.05 and 0.025 in chi2 distrib)
 #   or chi2 = 30.2 for the 12 line fit (between 0.1 and 0.05, near 0.1)
-def fig2(save=False, draw=False,  name="nhfig2.png", dpi=300):
-    fig_2 = figure(2, layout=None)
+#
+# With sigma_a = 0.44 arcsec per image,
+# nhmx6 = 0.5*(nh_prox+nh_wolf), x6inv = inv(x6cov)
+# actual position is nhmx6.dot(x6inv.dot(nhmx6))/sigma_a**2 = 0.9231 sigma
+def fig2(save=False, draw=False,  name="nhfig2.png", dpi=300,
+         sigma_a=0.44):
+    if not fignum_exists(2):
+        fig_2 = figure(2, layout=None)
+    else:
+        fig_2 = figure(2)
     fig_2.set_figwidth(10)
     fig_2.set_figheight(5)
     fig_2.set_dpi(100.)
     fig_2.clear()
+    sigma_a = sigma_a * pi/180./3600.
     gs = fig_2.add_gridspec(nrows=1, ncols=2, left=0.025, right=0.975,
                             top=0.95, bottom=0.05, hspace=0.05, wspace=0.1)
     ax0, ax1 = fig_2.add_subplot(gs[0, 0]), fig_2.add_subplot(gs[0, 1])
@@ -480,7 +489,7 @@ def fig2(save=False, draw=False,  name="nhfig2.png", dpi=300):
         ax.plot(*ticks, c="k", lw=0.75)
         ax.plot(*xy, c="k")
         # ax.plot(*(xytk + nh[:, None]), c="k")
-        ax.plot(*nh, "o", ms=5, c="k")
+        ax.plot(*nh, "o", ms=8, c="k")
         # gray dashed shortest distance line between P and W
         p0, p1 = los_dot, matmul(rot, _0-q)
         ax.plot([p0[0], p1[0]], [p0[1], p1[1]], "--", c="0.5")
@@ -488,8 +497,11 @@ def fig2(save=False, draw=False,  name="nhfig2.png", dpi=300):
         ax.plot(*kaplan, marker="o", ms=5, c="0.5")  # dot at midpoint
         weighted = matmul(rot, x6-q)  # wxyz-q
         ax.plot(*weighted, marker="*", ms=16, c="k")
-        ax.plot(*ellipsoid(*weighted, rot, x6cov, 1.e-6), c="k")
-        ax.plot(*ellipsoid(*weighted, rot, x6cov, 2.e-6), c="k")
+        ax.plot(*ellipsoid(*weighted, rot, x6cov, sigma_a), c="k")
+        ax.plot(*ellipsoid(*weighted, rot, x6cov, 0.5*sigma_a), c="k",
+                lw=1, dashes=[6, 4])
+        ax.plot(*ellipsoid(*weighted, rot, x6cov, 1.5*sigma_a), c="k",
+                lw=1, dashes=[6, 4])
         # P and W themselves with dots at closest approach
         ax.plot(*p0, "o", ms=5, c=c1)
         ax.plot(*line, c=c2)
