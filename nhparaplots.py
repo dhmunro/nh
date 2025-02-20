@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from numpy import (array, arange, asfarray, pi, cos, sin, sqrt, arctan2,
-                   where, matmul, cross, interp)
+                   where, matmul, cross, interp, sum)
 from scipy.linalg import svd
 from matplotlib import rc
 from matplotlib.pyplot import (clf, axes, axis, plot, text, arrow, savefig,
@@ -220,6 +220,7 @@ x6 = array([13.68164206, -41.82340774, -16.19656615])
 x6cov = array([[1.72947855e+10, 2.86120065e+09, 1.15404727e+10],
                [2.86120065e+09, 1.18094278e+10, 7.75674343e+09],
                [1.15404727e+10, 7.75674343e+09, 3.48267632e+10]])
+x60, x6cov0 = x6, x6cov
 x6 = equ2ecl(x6)
 x6cov = matmul(_oblq, matmul(x6cov, _oblq.T))
 
@@ -529,3 +530,16 @@ def fig2(save=False, draw=False,  name="nhfig2.png", dpi=300,
         ax.arrow(*p0, *p1, width=0.0007, head_width=0.0084, color=c2)
     if save:
         savefig(name, dpi=dpi, facecolor="w")
+
+
+# Calculations fo rTable 5
+ra6, dec6, range6 = xyz2radec(x60, with_r=1)
+raxis = x60 / sqrt(sum(x60**2))
+aaxis = (x60[[1, 0, 2]] * [-1., 1., 0.]) / sqrt(sum(x60[:2]**2))
+daxis = cross(raxis, aaxis)
+rot6 = array([raxis, aaxis, daxis])
+rotcov = matmul(rot6, matmul(x6cov0, rot6.T))
+x6err = sqrt(x6cov0.ravel()[::4]) * pi/180./3600. * 0.44
+range6err, ra6err, dec6err = sqrt(rotcov.ravel()[::4]) * pi/180./3600. * 0.44
+dec6err = dec6err / range6 * 180./pi  # (deg)
+ra6err = ra6err / range6 * 180./pi / cos(dec6*pi/180.)  # (deg)
